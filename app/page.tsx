@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { LogoutButton } from "@/components/logout-button";
+import { VotingSection } from "@/components/voting-section";
 import Image from "next/image";
 import {
   Accordion,
@@ -59,28 +60,31 @@ export default async function Home() {
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="bg-white border-4 border-black rounded-lg p-6 mb-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="relative w-20 h-20 shrink-0">
-                <Image
-                  src="/logo.png"
-                  alt="Malucas Awards Logo"
-                  fill
-                  className="object-contain"
-                  priority
-                />
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="relative w-20 h-20 shrink-0">
+                  <Image
+                    src="/logo.png"
+                    alt="Malucas Awards Logo"
+                    fill
+                    className="object-contain"
+                    priority
+                  />
+                </div>
+                <div>
+                  <h1 className="text-4xl font-bold text-black uppercase tracking-tight">
+                    MALUCAS AWARDS 2026
+                  </h1>
+                  <p className="text-black text-sm mt-1">
+                    Bem-vindo,{" "}
+                    <span className="font-bold">@{user.instagram}</span>
+                  </p>
+                </div>
               </div>
-              <div>
-                <h1 className="text-4xl font-bold text-black uppercase tracking-tight">
-                  MALUCAS AWARDS 2026
-                </h1>
-                <p className="text-black text-sm mt-1">
-                  Bem-vindo,{" "}
-                  <span className="font-bold">@{user.instagram}</span>
-                </p>
-              </div>
+              <LogoutButton />
             </div>
-            <LogoutButton />
+            <VotingSection categories={mockCategories} />
           </div>
         </div>
 

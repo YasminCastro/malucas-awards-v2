@@ -31,7 +31,13 @@ Crie um arquivo `.env.local` na raiz do projeto:
 
 ```env
 JWT_SECRET=sua-chave-secreta-aqui
+NEXT_PUBLIC_SUPPORT_LINK=http://wa.me/5562123314564
 ```
+
+**Variáveis de ambiente:**
+
+- `JWT_SECRET`: Chave secreta para assinatura dos tokens JWT
+- `NEXT_PUBLIC_SUPPORT_LINK`: Link do WhatsApp para suporte/recuperação de senha (deve ter prefixo `NEXT_PUBLIC_` para ser acessível no client-side)
 
 Para gerar uma chave segura:
 

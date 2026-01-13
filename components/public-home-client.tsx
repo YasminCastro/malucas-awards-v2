@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/accordion";
 import { ParticipantImage } from "@/components/participant-image";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface Participant {
   instagram: string;
@@ -129,7 +130,20 @@ export function PublicHomeClient({ categories, votingStatus, eventDate }: Public
         </div>
 
         {/* Categories or Results */}
-        {votingStatus === "resultado" ? (
+        {votingStatus === "escolhendo-categorias" ? (
+          <Card className="border-4 border-black">
+            <CardContent className="p-8 text-center space-y-6">
+              <p className="text-xl font-medium text-black">
+                As categorias ainda estão sendo definidas
+              </p>
+              <Link href="/category-suggestion">
+                <Button className="bg-black hover:bg-gray-900 text-white font-bold uppercase h-12 px-8 rounded-md border-2 border-black">
+                  Sugerir Categoria
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        ) : votingStatus === "resultado" ? (
           <div className="space-y-4">
             {resultsLoading ? (
               <div className="bg-white border-4 border-black rounded-lg p-6 text-center">

@@ -15,7 +15,7 @@ import {
 import { LogoutButton } from "@/components/logout-button";
 import Image from "next/image";
 
-type VotingStatus = 
+type VotingStatus =
   | "escolhendo-categorias"
   | "pre-votacao"
   | "votacao"

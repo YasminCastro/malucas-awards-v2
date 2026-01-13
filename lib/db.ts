@@ -606,3 +606,58 @@ export async function updateSettings(
 
   return result as Settings;
 }
+
+// ========== CATEGORY SUGGESTIONS ==========
+
+export interface CategorySuggestion {
+  _id?: string;
+  suggesterName: string;
+  categoryName: string;
+  participants: string[]; // Array de instagrams
+  createdAt?: Date;
+  status?: "pending" | "approved" | "rejected";
+}
+
+// Obter coleção de sugestões de categorias
+async function getCategorySuggestionsCollection(): Promise<Collection<CategorySuggestion>> {
+  const { db } = await connectToDatabase();
+  return db.collection<CategorySuggestion>("category_suggestions");
+}
+
+// Criar sugestão de categoria
+export async function createCategorySuggestion(
+  suggesterName: string,
+  categoryName: string,
+  participants: string[]
+): Promise<CategorySuggestion> {
+  const collection = await getCategorySuggestionsCollection();
+  
+  const suggestion: CategorySuggestion = {
+    suggesterName: suggesterName.trim(),
+    categoryName: categoryName.trim(),
+    participants: participants || [],
+    createdAt: new Date(),
+    status: "pending",
+  };
+
+  const result = await collection.insertOne(suggestion);
+  
+  if (!result.insertedId) {
+    throw new Error("Erro ao criar sugestão de categoria");
+  }
+
+  return {
+    ...suggestion,
+    _id: result.insertedId.toString(),
+  };
+}
+
+// Buscar todas as sugestões (para admin)
+export async function getCategorySuggestions(): Promise<CategorySuggestion[]> {
+  const collection = await getCategorySuggestionsCollection();
+  const suggestions = await collection
+    .find({})
+    .sort({ createdAt: -1 })
+    .toArray();
+  return suggestions;
+}

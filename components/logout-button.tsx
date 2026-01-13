@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { useState } from 'react';
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
 
 export function LogoutButton() {
   const router = useRouter();
@@ -11,13 +11,13 @@ export function LogoutButton() {
   const handleLogout = async () => {
     setLoading(true);
     try {
-      await fetch('/api/auth/logout', {
-        method: 'POST',
+      await fetch("/api/auth/logout", {
+        method: "POST",
       });
-      router.push('/');
+      router.push("/");
       router.refresh();
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
       setLoading(false);
     }
   };
@@ -28,7 +28,7 @@ export function LogoutButton() {
       disabled={loading}
       className="bg-black hover:bg-gray-900 text-white font-bold uppercase h-12 px-6 rounded-md border-2 border-black"
     >
-      {loading ? 'SAINDO...' : 'SAIR'}
+      {loading ? "SAINDO..." : "SAIR"}
     </Button>
   );
 }

@@ -7,7 +7,7 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Rotas públicas
-  const publicRoutes = ["/", "/login", "/signup"];
+  const publicRoutes = ["/", "/login", "/signup", "/category-suggestion"];
   const isPublicRoute = publicRoutes.includes(pathname);
 
   // Se for rota pública, permitir acesso

@@ -11,18 +11,22 @@ export async function GET() {
     }
 
     const settings = await getSettings();
-    
+
     // Se não existir configurações, retornar status padrão
     if (!settings) {
-      return NextResponse.json({ 
+      return NextResponse.json({
         status: "escolhendo-categorias",
-        eventDate: null
+        eventDate: null,
       });
     }
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       status: settings.status,
-      eventDate: settings.eventDate ? (settings.eventDate instanceof Date ? settings.eventDate.toISOString().split('T')[0] : settings.eventDate) : null
+      eventDate: settings.eventDate
+        ? settings.eventDate instanceof Date
+          ? settings.eventDate.toISOString().split("T")[0]
+          : settings.eventDate
+        : null,
     });
   } catch (error: any) {
     console.error("Erro ao buscar configurações:", error);
@@ -53,10 +57,7 @@ export async function PUT(request: NextRequest) {
     ];
 
     if (!status || !validStatuses.includes(status)) {
-      return NextResponse.json(
-        { error: "Status inválido" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Status inválido" }, { status: 400 });
     }
 
     const updateData: any = { status };
@@ -65,9 +66,13 @@ export async function PUT(request: NextRequest) {
     }
 
     const settings = await updateSettings(updateData);
-    return NextResponse.json({ 
+    return NextResponse.json({
       status: settings.status,
-      eventDate: settings.eventDate ? (settings.eventDate instanceof Date ? settings.eventDate.toISOString().split('T')[0] : settings.eventDate) : null
+      eventDate: settings.eventDate
+        ? settings.eventDate instanceof Date
+          ? settings.eventDate.toISOString().split("T")[0]
+          : settings.eventDate
+        : null,
     });
   } catch (error: any) {
     console.error("Erro ao atualizar configurações:", error);

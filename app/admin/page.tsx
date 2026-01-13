@@ -105,6 +105,23 @@ export default function AdminPage() {
               </Button>
             </CardContent>
           </Card>
+
+          <Card className="border-4 border-black hover:shadow-lg transition-shadow cursor-pointer">
+            <CardHeader>
+              <CardTitle>Configurações</CardTitle>
+              <CardDescription>
+                Configure o status e outras opções do sistema
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button
+                className="w-full"
+                onClick={() => router.push("/admin/config")}
+              >
+                Acessar
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

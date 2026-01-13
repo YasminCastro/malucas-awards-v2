@@ -1,11 +1,38 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getUserByInstagram, updateUserPassword } from "@/lib/db";
+import { getUserByInstagram, updateUserPassword, getSettings } from "@/lib/db";
 import { hashPassword, generateToken, setAuthCookie } from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { instagram, password } = body;
+
+    // Buscar usuário primeiro para verificar se é admin
+    const existingUser = await getUserByInstagram(instagram);
+    
+    if (!existingUser) {
+      return NextResponse.json(
+        {
+          error:
+            "Usuário não encontrado. Entre em contato com o administrador para ser cadastrado.",
+        },
+        { status: 404 }
+      );
+    }
+
+    // Verificar status de votação apenas se não for admin
+    const isAdmin = existingUser.isAdmin || false;
+    if (!isAdmin) {
+      const settings = await getSettings();
+      const votingStatus = settings?.status || "escolhendo-categorias";
+      
+      if (votingStatus === "pre-votacao") {
+        return NextResponse.json(
+          { error: "A votação ainda não está aberta. Aguarde o anúncio oficial." },
+          { status: 403 }
+        );
+      }
+    }
 
     if (!instagram || !password) {
       return NextResponse.json(
@@ -18,18 +45,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: "A senha deve ter pelo menos 6 caracteres" },
         { status: 400 }
-      );
-    }
-
-    const existingUser = await getUserByInstagram(instagram);
-
-    if (!existingUser) {
-      return NextResponse.json(
-        {
-          error:
-            "Usuário não encontrado. Entre em contato com o administrador para ser cadastrado.",
-        },
-        { status: 404 }
       );
     }
 

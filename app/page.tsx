@@ -1,4 +1,4 @@
-import { getCategories } from "@/lib/db";
+import { getCategories, getSettings } from "@/lib/db";
 import { PublicHomeClient } from "@/components/public-home-client";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,10 @@ import Image from "next/image";
 export default async function Home() {
   // Buscar categorias do banco de dados (público)
   const categories = await getCategories();
+
+  // Buscar status de votação
+  const settings = await getSettings();
+  const votingStatus = settings?.status || "escolhendo-categorias";
 
   // Converter para o formato esperado pelos componentes
   const formattedCategories = categories.map((category) => ({
@@ -18,5 +22,5 @@ export default async function Home() {
     })),
   }));
 
-  return <PublicHomeClient categories={formattedCategories} />;
+  return <PublicHomeClient categories={formattedCategories} votingStatus={votingStatus} />;
 }

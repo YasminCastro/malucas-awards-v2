@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
-import { saveVotes, getAllVotes } from "@/lib/db";
+import { saveVotes, getAllVotes, getSettings } from "@/lib/db";
 import { getCategories } from "@/lib/db";
 
 // POST - Salvar votos do usuário
@@ -9,6 +9,17 @@ export async function POST(request: NextRequest) {
     const currentUser = await getCurrentUser();
     if (!currentUser) {
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    }
+
+    // Verificar se o status permite votação
+    const settings = await getSettings();
+    const votingStatus = settings?.status || "escolhendo-categorias";
+    
+    if (votingStatus !== "votacao") {
+      return NextResponse.json(
+        { error: "A votação não está aberta no momento" },
+        { status: 403 }
+      );
     }
 
     const body = await request.json();

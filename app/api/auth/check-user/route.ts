@@ -35,6 +35,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       instagram: user.instagram,
+      isAdmin: user.isAdmin || false,
     });
   } catch (error) {
     console.error("Check user error:", error);

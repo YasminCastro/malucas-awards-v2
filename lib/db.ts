@@ -549,3 +549,52 @@ export async function getCategoryResults(categoryId: string): Promise<
 
   return results;
 }
+
+// ========== SETTINGS ==========
+
+export interface Settings {
+  _id?: string;
+  status: "escolhendo-categorias" | "pre-votacao" | "votacao" | "pos-votacao" | "resultado";
+  updatedAt?: Date;
+}
+
+// Obter coleção de configurações
+async function getSettingsCollection(): Promise<Collection<Settings>> {
+  const { db } = await connectToDatabase();
+  return db.collection<Settings>("settings");
+}
+
+// Buscar configurações (sempre retorna um documento único)
+export async function getSettings(): Promise<Settings | null> {
+  const collection = await getSettingsCollection();
+  const settings = await collection.findOne({});
+  return settings || null;
+}
+
+// Atualizar ou criar configurações
+export async function updateSettings(
+  updates: Partial<Pick<Settings, "status">>
+): Promise<Settings> {
+  const collection = await getSettingsCollection();
+
+  const updateData: any = {
+    updatedAt: new Date(),
+  };
+
+  if (updates.status !== undefined) {
+    updateData.status = updates.status;
+  }
+
+  // Usar upsert para criar se não existir
+  const result = await collection.findOneAndUpdate(
+    {},
+    { $set: updateData },
+    { upsert: true, returnDocument: "after" }
+  );
+
+  if (!result) {
+    throw new Error("Erro ao atualizar configurações");
+  }
+
+  return result as Settings;
+}

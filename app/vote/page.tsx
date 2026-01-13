@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
-import { getCategories } from "@/lib/db";
+import { getCategories, getSettings } from "@/lib/db";
 import { HomeClient } from "@/components/home-client";
 
 export default async function VotePage() {
@@ -13,6 +13,10 @@ export default async function VotePage() {
   // Buscar categorias do banco de dados
   const categories = await getCategories();
 
+  // Buscar status de votação
+  const settings = await getSettings();
+  const votingStatus = settings?.status || "escolhendo-categorias";
+
   // Converter para o formato esperado pelos componentes
   const formattedCategories = categories.map((category) => ({
     id: category.id,
@@ -23,5 +27,5 @@ export default async function VotePage() {
     })),
   }));
 
-  return <HomeClient categories={formattedCategories} user={user} />;
+  return <HomeClient categories={formattedCategories} user={user} votingStatus={votingStatus} />;
 }

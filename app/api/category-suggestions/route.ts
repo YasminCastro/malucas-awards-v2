@@ -15,6 +15,7 @@ export async function GET() {
           categoryName: suggestion.categoryName,
           participants: suggestion.participants || [],
           observations: suggestion.observations,
+          status: suggestion.status || "pending",
           createdAt: suggestion.createdAt,
         }))
       },

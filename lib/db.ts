@@ -781,3 +781,40 @@ export async function addParticipantsToSuggestion(
 
   return updatedSuggestion;
 }
+
+// Atualizar status da sugestão
+export async function updateCategorySuggestionStatus(
+  id: string,
+  status: "pending" | "approved" | "rejected"
+): Promise<CategorySuggestion> {
+  const collection = await getCategorySuggestionsCollection();
+  const { ObjectId } = await import("mongodb");
+  
+  let query: any;
+  try {
+    query = { _id: new ObjectId(id) };
+  } catch {
+    query = { _id: id };
+  }
+
+  const result = await collection.updateOne(
+    query,
+    {
+      $set: { status }
+    }
+  );
+
+  if (result.matchedCount === 0) {
+    throw new Error("Sugestão não encontrada");
+  }
+
+  const updatedSuggestion = await getCategorySuggestionById(id);
+  if (!updatedSuggestion) {
+    throw new Error("Sugestão não encontrada após atualização");
+  }
+
+  // Invalidar cache de sugestões
+  cache.delete(CacheKeys.CATEGORY_SUGGESTIONS);
+
+  return updatedSuggestion;
+}

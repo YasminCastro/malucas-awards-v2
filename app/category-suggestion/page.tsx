@@ -25,6 +25,7 @@ interface CategorySuggestion {
   categoryName: string;
   participants: string[];
   observations?: string;
+  status?: "pending" | "approved" | "rejected";
   createdAt?: Date;
 }
 
@@ -408,16 +409,27 @@ export default function CategorySuggestionPage() {
                 {suggestions.map((suggestion) => (
                   <div
                     key={suggestion.id}
-                    className="border-2 border-black rounded-lg p-4 bg-white"
+                    className={`border-2 rounded-lg p-4 ${
+                      suggestion.status === "approved"
+                        ? "bg-green-50 border-green-400"
+                        : "bg-white border-black"
+                    }`}
                   >
                     <div className="flex flex-col gap-3">
-                      <div>
-                        <h3 className="text-xl font-bold text-black uppercase">
-                          {suggestion.categoryName}
-                        </h3>
-                        <p className="text-sm text-gray-600 mt-1">
-                          Sugerido por: <span className="font-semibold">{suggestion.suggesterName}</span>
-                        </p>
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                          <h3 className="text-xl font-bold text-black uppercase">
+                            {suggestion.categoryName}
+                          </h3>
+                          <p className="text-sm text-gray-600 mt-1">
+                            Sugerido por: <span className="font-semibold">{suggestion.suggesterName}</span>
+                          </p>
+                        </div>
+                        {suggestion.status === "approved" && (
+                          <div className="px-3 py-1 bg-green-500 text-white rounded-md text-sm font-semibold whitespace-nowrap">
+                            ✓ Aprovada
+                          </div>
+                        )}
                       </div>
 
                       {suggestion.observations && (

@@ -108,6 +108,23 @@ export default function AdminPage() {
 
           <Card className="border-4 border-black hover:shadow-lg transition-shadow cursor-pointer">
             <CardHeader>
+              <CardTitle>Sugestões de Categorias</CardTitle>
+              <CardDescription>
+                Gerencie as sugestões de categorias enviadas pelos usuários
+              </CardDescription>
+            </CardHeader>
+          <CardContent>
+            <Button
+              className="w-full"
+              onClick={() => router.push("/admin/category-suggestions")}
+            >
+              Acessar
+            </Button>
+          </CardContent>
+        </Card>
+
+          <Card className="border-4 border-black hover:shadow-lg transition-shadow cursor-pointer">
+            <CardHeader>
               <CardTitle>Configurações</CardTitle>
               <CardDescription>
                 Configure o status e outras opções do sistema

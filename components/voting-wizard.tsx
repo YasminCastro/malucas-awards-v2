@@ -20,15 +20,17 @@ interface VotingWizardProps {
   categories: Category[];
   onClose: () => void;
   onComplete: (votes: Record<string, string>) => void;
+  initialVotes?: Record<string, string>;
 }
 
 export function VotingWizard({
   categories,
   onClose,
   onComplete,
+  initialVotes = {},
 }: VotingWizardProps) {
   const [currentStep, setCurrentStep] = useState(0);
-  const [votes, setVotes] = useState<Record<string, string>>({});
+  const [votes, setVotes] = useState<Record<string, string>>(initialVotes);
 
   const currentCategory = categories[currentStep];
   const isFirstStep = currentStep === 0;

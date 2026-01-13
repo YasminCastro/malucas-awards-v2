@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { VotingWizard } from "@/components/voting-wizard";
 
@@ -21,9 +21,27 @@ interface VotingButtonProps {
 
 export function VotingButton({ categories }: VotingButtonProps) {
   const [isVoting, setIsVoting] = useState(false);
+  const [previousVotes, setPreviousVotes] = useState<Record<string, string>>(
+    {}
+  );
+  const [loadingVotes, setLoadingVotes] = useState(false);
 
-  const handleStartVoting = () => {
-    setIsVoting(true);
+  const handleStartVoting = async () => {
+    setLoadingVotes(true);
+    try {
+      // Buscar votos anteriores do usuário
+      const response = await fetch("/api/votes/me");
+      if (response.ok) {
+        const data = await response.json();
+        setPreviousVotes(data.votes || {});
+      }
+    } catch (error) {
+      console.error("Erro ao buscar votos anteriores:", error);
+      setPreviousVotes({});
+    } finally {
+      setLoadingVotes(false);
+      setIsVoting(true);
+    }
   };
 
   const handleCloseVoting = () => {
@@ -65,6 +83,7 @@ export function VotingButton({ categories }: VotingButtonProps) {
           categories={categories}
           onClose={handleCloseVoting}
           onComplete={handleCompleteVoting}
+          initialVotes={previousVotes}
         />
       )}
     </>

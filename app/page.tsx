@@ -9,44 +9,8 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-
-// Dados mockados - serão substituídos pela API depois
-// Os nomes das imagens correspondem aos arquivos em public/nominees
-const mockCategories = [
-  {
-    id: "1",
-    name: "MALUCA DO ANO",
-    participants: [
-      { instagram: "@annacrat", image: "annacrat.jpeg" },
-      { instagram: "@annavieira", image: "annavieira.png" },
-    ],
-  },
-  {
-    id: "2",
-    name: "MELHOR POSTAGEM",
-    participants: [
-      { instagram: "@carolbiajante", image: "carolbiajante.png" },
-      { instagram: "@evelyn", image: "evelyn.jpeg" },
-    ],
-  },
-  {
-    id: "3",
-    name: "MAIS ENGRAÇADA",
-    participants: [
-      { instagram: "@gabriel", image: "gabriel.png" },
-      { instagram: "@grauciaa", image: "grauciaa.jpeg" },
-      { instagram: "@iara", image: "iara.jpeg" },
-    ],
-  },
-  {
-    id: "4",
-    name: "MAIS ESTILOSA",
-    participants: [
-      { instagram: "@isabelamoraes", image: "isabelamoraes.png" },
-      { instagram: "@jose", image: "jose.jpeg" },
-    ],
-  },
-];
+import { getCategories } from "@/lib/db";
+import { ParticipantImage } from "@/components/participant-image";
 
 export default async function Home() {
   const user = await getCurrentUser();
@@ -54,6 +18,19 @@ export default async function Home() {
   if (!user) {
     redirect("/login");
   }
+
+  // Buscar categorias do banco de dados
+  const categories = await getCategories();
+
+  // Converter para o formato esperado pelos componentes
+  const formattedCategories = categories.map((category) => ({
+    id: category.id,
+    name: category.name,
+    participants: category.participants.map((p) => ({
+      instagram: p.instagram,
+      image: p.image,
+    })),
+  }));
 
   return (
     <div className="min-h-screen bg-linear-to-br from-[#f93fff] to-[#f7f908] p-4 pb-8">
@@ -84,13 +61,13 @@ export default async function Home() {
               </div>
               <LogoutButton />
             </div>
-            <VotingSection categories={mockCategories} />
+            <VotingSection categories={formattedCategories} />
           </div>
         </div>
 
         {/* Categories */}
         <div className="space-y-4">
-          {mockCategories.map((category) => (
+          {formattedCategories.map((category) => (
             <Accordion
               key={category.id}
               type="single"
@@ -114,12 +91,10 @@ export default async function Home() {
                         className="border-2 border-black rounded-md overflow-hidden hover:bg-gray-50 transition-colors"
                       >
                         <div className="relative w-full aspect-square">
-                          <Image
+                          <ParticipantImage
                             src={`/nominees/${participant.image}`}
                             alt={participant.instagram}
-                            fill
                             className="object-cover"
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                           />
                         </div>
                         <div className="p-3 border-t-2 border-black">

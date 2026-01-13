@@ -87,6 +87,23 @@ export default function AdminPage() {
               </Button>
             </CardContent>
           </Card>
+
+          <Card className="border-4 border-black hover:shadow-lg transition-shadow cursor-pointer">
+            <CardHeader>
+              <CardTitle>Resultados</CardTitle>
+              <CardDescription>
+                Visualize resultados e votos dos usuários
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button
+                className="w-full"
+                onClick={() => router.push("/admin/result")}
+              >
+                Acessar
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

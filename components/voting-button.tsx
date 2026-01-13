@@ -30,11 +30,25 @@ export function VotingButton({ categories }: VotingButtonProps) {
     setIsVoting(false);
   };
 
-  const handleCompleteVoting = (votes: Record<string, string>) => {
-    console.log("Votos registrados:", votes);
-    // Aqui você pode fazer a chamada para a API para salvar os votos
-    setIsVoting(false);
-    // Você pode adicionar um toast ou mensagem de sucesso aqui
+  const handleCompleteVoting = async (votes: Record<string, string>) => {
+    try {
+      const response = await fetch("/api/votes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ votes }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Erro ao salvar votos");
+      }
+
+      setIsVoting(false);
+      alert("Votos registrados com sucesso!");
+    } catch (error: any) {
+      console.error("Erro ao salvar votos:", error);
+      alert(error.message || "Erro ao salvar votos. Tente novamente.");
+    }
   };
 
   return (

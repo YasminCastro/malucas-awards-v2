@@ -505,61 +505,36 @@ export default function AdminCategoriesPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="space-y-3">
               {categories.map((category) => (
                 <div
                   key={category._id}
-                  className="border-2 border-black rounded-lg p-4 bg-white"
+                  className="border-2 border-black rounded-lg p-4 bg-white flex items-center justify-between"
                 >
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <h3 className="text-xl font-bold text-black uppercase">
-                        {category.name}
-                      </h3>
-                      <p className="text-sm text-gray-600 mt-1">
-                        {category.participants.length} participante(s)
-                      </p>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => startEdit(category)}
-                      >
-                        Editar
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => handleDeleteCategory(category._id)}
-                      >
-                        Deletar
-                      </Button>
-                    </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-black uppercase">
+                      {category.name}
+                    </h3>
+                    <p className="text-sm text-gray-600 mt-1">
+                      {category.participants.length} participante(s)
+                    </p>
                   </div>
-                  {category.participants.length > 0 && (
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                      {category.participants.map((participant, index) => (
-                        <div
-                          key={index}
-                          className="border-2 border-gray-300 rounded-md overflow-hidden"
-                        >
-                          <div className="relative w-full aspect-square">
-                            <ParticipantImage
-                              src={`/nominees/${participant.image}`}
-                              alt={participant.instagram}
-                              className="object-cover"
-                            />
-                          </div>
-                          <div className="p-2 border-t-2 border-gray-300 bg-gray-50">
-                            <p className="text-black font-medium text-center text-xs">
-                              {participant.instagram}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => startEdit(category)}
+                    >
+                      Editar
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleDeleteCategory(category._id)}
+                    >
+                      Deletar
+                    </Button>
+                  </div>
                 </div>
               ))}
               {categories.length === 0 && (

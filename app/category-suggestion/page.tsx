@@ -19,19 +19,35 @@ interface User {
   instagram: string;
 }
 
+interface CategorySuggestion {
+  id: string;
+  suggesterName: string;
+  categoryName: string;
+  participants: string[];
+  observations?: string;
+  createdAt?: Date;
+}
+
 export default function CategorySuggestionPage() {
   const router = useRouter();
   const [suggesterName, setSuggesterName] = useState("");
   const [categoryName, setCategoryName] = useState("");
+  const [observations, setObservations] = useState("");
   const [selectedParticipants, setSelectedParticipants] = useState<string[]>([]);
   const [users, setUsers] = useState<User[]>([]);
+  const [suggestions, setSuggestions] = useState<CategorySuggestion[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingUsers, setLoadingUsers] = useState(true);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [expandedSuggestion, setExpandedSuggestion] = useState<string | null>(null);
+  const [addingParticipants, setAddingParticipants] = useState<string | null>(null);
+  const [selectedParticipantsToAdd, setSelectedParticipantsToAdd] = useState<Record<string, string[]>>({});
 
   useEffect(() => {
     loadUsers();
+    loadSuggestions();
   }, []);
 
   const loadUsers = async () => {
@@ -46,6 +62,83 @@ export default function CategorySuggestionPage() {
     } finally {
       setLoadingUsers(false);
     }
+  };
+
+  const loadSuggestions = async () => {
+    try {
+      const response = await fetch("/api/category-suggestions");
+      if (response.ok) {
+        const data = await response.json();
+        setSuggestions(data.suggestions || []);
+      }
+    } catch (error) {
+      console.error("Erro ao carregar sugestões:", error);
+    } finally {
+      setLoadingSuggestions(false);
+    }
+  };
+
+  const handleAddParticipantsToggle = (suggestionId: string, instagram: string) => {
+    setSelectedParticipantsToAdd((prev) => {
+      const current = prev[suggestionId] || [];
+      if (current.includes(instagram)) {
+        return {
+          ...prev,
+          [suggestionId]: current.filter((p) => p !== instagram),
+        };
+      } else {
+        return {
+          ...prev,
+          [suggestionId]: [...current, instagram],
+        };
+      }
+    });
+  };
+
+  const handleAddParticipants = async (suggestionId: string) => {
+    const participantsToAdd = selectedParticipantsToAdd[suggestionId] || [];
+    if (participantsToAdd.length === 0) {
+      setError("Selecione pelo menos um participante para adicionar");
+      return;
+    }
+
+    setAddingParticipants(suggestionId);
+    setError(null);
+
+    try {
+      const response = await fetch(`/api/category-suggestions/${suggestionId}/participants`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          participants: participantsToAdd,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Erro ao adicionar participantes");
+      }
+
+      setSelectedParticipantsToAdd((prev) => {
+        const updated = { ...prev };
+        delete updated[suggestionId];
+        return updated;
+      });
+      setExpandedSuggestion(null);
+      await loadSuggestions();
+    } catch (error: any) {
+      setError(error.message || "Erro ao adicionar participantes");
+    } finally {
+      setAddingParticipants(null);
+    }
+  };
+
+  const getAvailableParticipants = (suggestion: CategorySuggestion) => {
+    const existingParticipants = suggestion.participants || [];
+    return users.filter((user) => !existingParticipants.includes(user.instagram));
   };
 
   const handleParticipantToggle = (instagram: string) => {
@@ -71,11 +164,6 @@ export default function CategorySuggestionPage() {
       return;
     }
 
-    if (selectedParticipants.length === 0) {
-      setError("Por favor, selecione pelo menos um participante");
-      return;
-    }
-
     setLoading(true);
 
     try {
@@ -88,6 +176,7 @@ export default function CategorySuggestionPage() {
           suggesterName: suggesterName.trim(),
           categoryName: categoryName.trim(),
           participants: selectedParticipants,
+          observations: observations.trim() || undefined,
         }),
       });
 
@@ -100,10 +189,11 @@ export default function CategorySuggestionPage() {
       setSuccess(true);
       setSuggesterName("");
       setCategoryName("");
+      setObservations("");
       setSelectedParticipants([]);
+      await loadSuggestions(); // Recarregar a lista após envio
       setTimeout(() => {
         setSuccess(false);
-        router.push("/");
       }, 2000);
     } catch (error: any) {
       setError(error.message || "Erro ao enviar sugestão");
@@ -184,7 +274,20 @@ export default function CategorySuggestionPage() {
               </div>
 
               <div className="space-y-2">
-                <Label>Participantes</Label>
+                <Label htmlFor="observations">Observação (Opcional)</Label>
+                <textarea
+                  id="observations"
+                  value={observations}
+                  onChange={(e) => setObservations(e.target.value)}
+                  placeholder="Explique mais sobre a categoria e por que ela deveria ser incluída"
+                  className="flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-xs placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:border-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                  disabled={loading}
+                  rows={4}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Participantes (Opcional)</Label>
                 {loadingUsers ? (
                   <p className="text-sm text-gray-600">Carregando participantes...</p>
                 ) : (
@@ -213,7 +316,7 @@ export default function CategorySuggestionPage() {
                   </div>
                 )}
                 <p className="text-sm text-gray-600">
-                  Selecione os participantes para esta categoria
+                  Selecione os participantes para esta categoria (opcional)
                 </p>
               </div>
 
@@ -239,6 +342,140 @@ export default function CategorySuggestionPage() {
                 </Button>
               </div>
             </form>
+          </CardContent>
+        </Card>
+
+        {/* Lista de Sugestões */}
+        <Card className="border-4 border-black mt-6">
+          <CardHeader>
+            <CardTitle>Sugestões Enviadas</CardTitle>
+            <CardDescription>
+              Veja todas as sugestões de categorias que foram enviadas
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {loadingSuggestions ? (
+              <p className="text-center py-8 text-gray-600">Carregando sugestões...</p>
+            ) : suggestions.length === 0 ? (
+              <p className="text-center py-8 text-gray-600">Nenhuma sugestão enviada ainda.</p>
+            ) : (
+              <div className="space-y-4">
+                {suggestions.map((suggestion) => (
+                  <div
+                    key={suggestion.id}
+                    className="border-2 border-black rounded-lg p-4 bg-white"
+                  >
+                    <div className="flex flex-col gap-3">
+                      <div>
+                        <h3 className="text-xl font-bold text-black uppercase">
+                          {suggestion.categoryName}
+                        </h3>
+                        <p className="text-sm text-gray-600 mt-1">
+                          Sugerido por: <span className="font-semibold">{suggestion.suggesterName}</span>
+                        </p>
+                      </div>
+
+                      {suggestion.observations && (
+                        <div>
+                          <p className="text-sm font-semibold text-gray-700 mb-1">Observação:</p>
+                          <p className="text-sm text-gray-600 whitespace-pre-wrap bg-gray-50 p-3 rounded border border-gray-200">
+                            {suggestion.observations}
+                          </p>
+                        </div>
+                      )}
+
+                      {suggestion.participants && suggestion.participants.length > 0 && (
+                        <div>
+                          <p className="text-sm font-semibold text-gray-700 mb-2">Participantes sugeridos:</p>
+                          <div className="flex flex-wrap gap-2">
+                            {suggestion.participants.map((participant, index) => (
+                              <span
+                                key={index}
+                                className="px-3 py-1 bg-gray-100 border border-gray-300 rounded-md text-sm font-medium text-black"
+                              >
+                                {participant}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Botão para adicionar participantes */}
+                      <div className="border-t border-gray-200 pt-3">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            if (expandedSuggestion === suggestion.id) {
+                              setExpandedSuggestion(null);
+                            } else {
+                              setExpandedSuggestion(suggestion.id);
+                            }
+                          }}
+                          className="w-full"
+                        >
+                          {expandedSuggestion === suggestion.id
+                            ? "Cancelar"
+                            : "Adicionar Participantes"}
+                        </Button>
+
+                        {expandedSuggestion === suggestion.id && (
+                          <div className="mt-3 space-y-3">
+                            {getAvailableParticipants(suggestion).length === 0 ? (
+                              <p className="text-sm text-gray-600 text-center py-2">
+                                Todos os participantes já foram adicionados
+                              </p>
+                            ) : (
+                              <>
+                                <div className="border-2 border-black rounded-md p-3 max-h-48 overflow-y-auto bg-white">
+                                  <div className="space-y-2">
+                                    {getAvailableParticipants(suggestion).map((user) => (
+                                      <label
+                                        key={user.instagram}
+                                        className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded"
+                                      >
+                                        <input
+                                          type="checkbox"
+                                          checked={
+                                            (selectedParticipantsToAdd[suggestion.id] || []).includes(
+                                              user.instagram
+                                            )
+                                          }
+                                          onChange={() =>
+                                            handleAddParticipantsToggle(suggestion.id, user.instagram)
+                                          }
+                                          disabled={addingParticipants === suggestion.id}
+                                          className="w-4 h-4 border-2 border-black rounded"
+                                        />
+                                        <span className="text-sm font-medium">{user.instagram}</span>
+                                      </label>
+                                    ))}
+                                  </div>
+                                </div>
+                                <Button
+                                  type="button"
+                                  onClick={() => handleAddParticipants(suggestion.id)}
+                                  disabled={
+                                    addingParticipants === suggestion.id ||
+                                    (selectedParticipantsToAdd[suggestion.id] || []).length === 0
+                                  }
+                                  className="w-full"
+                                >
+                                  {addingParticipants === suggestion.id
+                                    ? "Adicionando..."
+                                    : "Adicionar Selecionados"}
+                                </Button>
+                              </>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

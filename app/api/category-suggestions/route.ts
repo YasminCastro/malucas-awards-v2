@@ -1,11 +1,39 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createCategorySuggestion } from "@/lib/db";
+import { createCategorySuggestion, getCategorySuggestions } from "@/lib/db";
+
+// GET - Buscar todas as sugestões (público)
+export async function GET() {
+  try {
+    const suggestions = await getCategorySuggestions();
+    
+    return NextResponse.json(
+      { 
+        success: true, 
+        suggestions: suggestions.map(suggestion => ({
+          id: suggestion._id,
+          suggesterName: suggestion.suggesterName,
+          categoryName: suggestion.categoryName,
+          participants: suggestion.participants || [],
+          observations: suggestion.observations,
+          createdAt: suggestion.createdAt,
+        }))
+      },
+      { status: 200 }
+    );
+  } catch (error: any) {
+    console.error("Erro ao buscar sugestões de categoria:", error);
+    return NextResponse.json(
+      { error: error.message || "Erro ao buscar sugestões" },
+      { status: 500 }
+    );
+  }
+}
 
 // POST - Criar sugestão de categoria (público)
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { suggesterName, categoryName, participants } = body;
+    const { suggesterName, categoryName, participants, observations } = body;
 
     if (!suggesterName || typeof suggesterName !== "string" || suggesterName.trim() === "") {
       return NextResponse.json(
@@ -21,17 +49,28 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!Array.isArray(participants)) {
+    // Verificar se a categoria já foi sugerida (comparação case-insensitive)
+    const existingSuggestions = await getCategorySuggestions();
+    const trimmedCategoryName = categoryName.trim();
+    const categoryExists = existingSuggestions.some(
+      (suggestion) => suggestion.categoryName.trim().toLowerCase() === trimmedCategoryName.toLowerCase()
+    );
+
+    if (categoryExists) {
       return NextResponse.json(
-        { error: "Participantes deve ser um array" },
-        { status: 400 }
+        { error: "Esta categoria já está na lista de sugestões" },
+        { status: 409 }
       );
     }
+
+    // Participantes é opcional, mas se fornecido deve ser um array
+    const participantsArray = Array.isArray(participants) ? participants : [];
 
     const suggestion = await createCategorySuggestion(
       suggesterName.trim(),
       categoryName.trim(),
-      participants
+      participantsArray,
+      observations
     );
     
     return NextResponse.json(

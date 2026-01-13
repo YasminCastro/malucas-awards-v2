@@ -1,5 +1,6 @@
 import { MongoClient, Db, Collection } from "mongodb";
 import { User } from "./auth";
+import { cache, CacheKeys } from "./cache";
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
@@ -232,9 +233,19 @@ export async function userNeedsPassword(instagram: string): Promise<boolean> {
 
 // Funções auxiliares mantidas para compatibilidade (não são mais necessárias com MongoDB)
 export async function getUsers(): Promise<User[]> {
+  // Verificar cache
+  const cached = cache.get<User[]>(CacheKeys.USERS);
+  if (cached) {
+    return cached;
+  }
+
   await initializeIndexes();
   const collection = await getUsersCollection();
   const users = await collection.find({}).toArray();
+  
+  // Armazenar no cache por 5 minutos
+  cache.set(CacheKeys.USERS, users, 5 * 60 * 1000);
+  
   return users;
 }
 
@@ -335,8 +346,18 @@ async function getCategoriesCollection(): Promise<Collection<Category>> {
 
 // Buscar todas as categorias
 export async function getCategories(): Promise<Category[]> {
+  // Verificar cache
+  const cached = cache.get<Category[]>(CacheKeys.CATEGORIES);
+  if (cached) {
+    return cached;
+  }
+
   const collection = await getCategoriesCollection();
   const categories = await collection.find({}).sort({ createdAt: 1 }).toArray();
+  
+  // Armazenar no cache por 2 minutos
+  cache.set(CacheKeys.CATEGORIES, categories, 2 * 60 * 1000);
+  
   return categories;
 }
 
@@ -382,6 +403,10 @@ export async function createCategory(
 
   const result = await collection.insertOne(newCategory as any);
   const insertedCategory = await collection.findOne({ _id: result.insertedId });
+  
+  // Invalidar cache de categorias
+  cache.delete(CacheKeys.CATEGORIES);
+  
   return insertedCategory as Category;
 }
 
@@ -438,6 +463,12 @@ export async function deleteCategory(id: string): Promise<boolean> {
   }
 
   const result = await collection.deleteOne(query);
+  
+  // Invalidar cache de categorias se deletou
+  if (result.deletedCount > 0) {
+    cache.delete(CacheKeys.CATEGORIES);
+  }
+  
   return result.deletedCount > 0;
 }
 
@@ -567,9 +598,20 @@ async function getSettingsCollection(): Promise<Collection<Settings>> {
 
 // Buscar configurações (sempre retorna um documento único)
 export async function getSettings(): Promise<Settings | null> {
+  // Verificar cache
+  const cached = cache.get<Settings | null>(CacheKeys.SETTINGS);
+  if (cached !== null) {
+    return cached;
+  }
+
   const collection = await getSettingsCollection();
   const settings = await collection.findOne({});
-  return settings || null;
+  const result = settings || null;
+  
+  // Armazenar no cache por 1 minuto
+  cache.set(CacheKeys.SETTINGS, result, 60 * 1000);
+  
+  return result;
 }
 
 // Atualizar ou criar configurações
@@ -604,6 +646,9 @@ export async function updateSettings(
     throw new Error("Erro ao atualizar configurações");
   }
 
+  // Invalidar cache de configurações
+  cache.delete(CacheKeys.SETTINGS);
+
   return result as Settings;
 }
 
@@ -614,6 +659,7 @@ export interface CategorySuggestion {
   suggesterName: string;
   categoryName: string;
   participants: string[]; // Array de instagrams
+  observations?: string; // Observações opcionais sobre a categoria
   createdAt?: Date;
   status?: "pending" | "approved" | "rejected";
 }
@@ -628,7 +674,8 @@ async function getCategorySuggestionsCollection(): Promise<Collection<CategorySu
 export async function createCategorySuggestion(
   suggesterName: string,
   categoryName: string,
-  participants: string[]
+  participants: string[],
+  observations?: string
 ): Promise<CategorySuggestion> {
   const collection = await getCategorySuggestionsCollection();
   
@@ -636,6 +683,7 @@ export async function createCategorySuggestion(
     suggesterName: suggesterName.trim(),
     categoryName: categoryName.trim(),
     participants: participants || [],
+    observations: observations?.trim() || undefined,
     createdAt: new Date(),
     status: "pending",
   };
@@ -646,6 +694,9 @@ export async function createCategorySuggestion(
     throw new Error("Erro ao criar sugestão de categoria");
   }
 
+  // Invalidar cache de sugestões
+  cache.delete(CacheKeys.CATEGORY_SUGGESTIONS);
+
   return {
     ...suggestion,
     _id: result.insertedId.toString(),
@@ -654,10 +705,76 @@ export async function createCategorySuggestion(
 
 // Buscar todas as sugestões (para admin)
 export async function getCategorySuggestions(): Promise<CategorySuggestion[]> {
+  // Verificar cache
+  const cached = cache.get<CategorySuggestion[]>(CacheKeys.CATEGORY_SUGGESTIONS);
+  if (cached) {
+    return cached;
+  }
+
   const collection = await getCategorySuggestionsCollection();
   const suggestions = await collection
     .find({})
     .sort({ createdAt: -1 })
     .toArray();
+  
+  // Armazenar no cache por 1 minuto
+  cache.set(CacheKeys.CATEGORY_SUGGESTIONS, suggestions, 60 * 1000);
+  
   return suggestions;
+}
+
+// Buscar sugestão por ID
+export async function getCategorySuggestionById(id: string): Promise<CategorySuggestion | null> {
+  const collection = await getCategorySuggestionsCollection();
+  const { ObjectId } = await import("mongodb");
+  let query: any;
+  try {
+    query = { _id: new ObjectId(id) };
+  } catch {
+    query = { _id: id };
+  }
+  const suggestion = await collection.findOne(query);
+  return suggestion || null;
+}
+
+// Adicionar participantes a uma sugestão (apenas adiciona, não remove)
+export async function addParticipantsToSuggestion(
+  id: string,
+  newParticipants: string[]
+): Promise<CategorySuggestion> {
+  const collection = await getCategorySuggestionsCollection();
+  const { ObjectId } = await import("mongodb");
+  
+  let query: any;
+  try {
+    query = { _id: new ObjectId(id) };
+  } catch {
+    query = { _id: id };
+  }
+
+  // Normalizar participantes (trim e remover duplicatas)
+  const normalizedParticipants = Array.from(
+    new Set(newParticipants.map(p => p.trim()).filter(p => p))
+  );
+
+  // Usar $addToSet para adicionar apenas participantes únicos
+  const result = await collection.updateOne(
+    query,
+    {
+      $addToSet: {
+        participants: { $each: normalizedParticipants }
+      }
+    }
+  );
+
+  if (result.matchedCount === 0) {
+    throw new Error("Sugestão não encontrada");
+  }
+
+  const updatedSuggestion = await getCategorySuggestionById(id);
+  if (!updatedSuggestion) {
+    throw new Error("Sugestão não encontrada após atualização");
+  }
+
+  return updatedSuggestion;
 }

@@ -149,6 +149,33 @@ export default function AdminPage() {
     }
   };
 
+  const handleResetPassword = async (id: string, instagram: string) => {
+    if (
+      !confirm(
+        `Tem certeza que deseja resetar a senha do usuário @${instagram}?`
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/admin/users/${id}/reset-password`, {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Erro ao resetar senha");
+      }
+
+      await loadUsers();
+      setError(null);
+      alert("Senha resetada com sucesso!");
+    } catch (error: any) {
+      setError(error.message);
+    }
+  };
+
   const startEdit = (user: User) => {
     setEditingUser(user);
     setFormData({
@@ -344,6 +371,15 @@ export default function AdminPage() {
                             onClick={() => startEdit(user)}
                           >
                             Editar
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              handleResetPassword(user._id, user.instagram)
+                            }
+                          >
+                            Resetar Senha
                           </Button>
                           <Button
                             variant="destructive"

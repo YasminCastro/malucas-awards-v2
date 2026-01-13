@@ -3,20 +3,10 @@ import { getCurrentUser, isCurrentUserAdmin } from "@/lib/auth";
 import { getUserById, updateUser, deleteUser } from "@/lib/db";
 import { hashPassword } from "@/lib/auth";
 
-// Função auxiliar para converter _id para string
-function normalizeUser(user: any) {
-  const userId =
-    typeof user._id === "string" ? user._id : user._id?.toString() || user._id;
-  return {
-    ...user,
-    _id: userId,
-  };
-}
-
 // PUT - Atualizar usuário
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const currentUser = await getCurrentUser();
@@ -36,7 +26,7 @@ export async function PUT(
       );
     }
 
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
     const { instagram, password, hasSetPassword, isAdmin: userIsAdmin } = body;
 
@@ -54,7 +44,6 @@ export async function PUT(
       updates.isAdmin = userIsAdmin;
     }
 
-    // Se senha foi fornecida, atualizar senha
     if (password) {
       if (password.length < 6) {
         return NextResponse.json(
@@ -79,19 +68,15 @@ export async function PUT(
     }
 
     const updatedUser = await updateUser(id, updates);
-    const normalized = normalizeUser(updatedUser);
 
     return NextResponse.json({
       success: true,
       user: {
-        _id: normalized._id,
-        instagram: normalized.instagram,
-        hasSetPassword: normalized.hasSetPassword,
-        isAdmin: normalized.isAdmin,
-        createdAt:
-          normalized.createdAt instanceof Date
-            ? normalized.createdAt.toISOString()
-            : normalized.createdAt,
+        _id: updatedUser._id,
+        instagram: updatedUser.instagram,
+        hasSetPassword: updatedUser.hasSetPassword,
+        isAdmin: updatedUser.isAdmin,
+        createdAt: updatedUser.createdAt,
       },
     });
   } catch (error: any) {
@@ -114,7 +99,7 @@ export async function PUT(
 // DELETE - Deletar usuário
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const currentUser = await getCurrentUser();
@@ -134,9 +119,8 @@ export async function DELETE(
       );
     }
 
-    const { id } = params;
+    const { id } = await params;
 
-    // Não permitir que admin delete a si mesmo
     if (id === currentUser.userId) {
       return NextResponse.json(
         { error: "Você não pode deletar sua própria conta" },

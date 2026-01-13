@@ -188,6 +188,39 @@ export async function updateUserPassword(
   return updatedUser;
 }
 
+// Resetar senha do usuário (remove passwordHash e define hasSetPassword como false)
+export async function resetUserPassword(id: string): Promise<User> {
+  await initializeIndexes();
+  const collection = await getUsersCollection();
+
+  const { ObjectId } = await import("mongodb");
+  let query: any;
+  try {
+    query = { _id: new ObjectId(id) };
+  } catch {
+    query = { _id: id };
+  }
+
+  const result = await collection.updateOne(query, {
+    $set: {
+      passwordHash: "",
+      hasSetPassword: false,
+      updatedAt: new Date(),
+    },
+  });
+
+  if (result.matchedCount === 0) {
+    throw new Error("Usuário não encontrado");
+  }
+
+  const updatedUser = await getUserById(id);
+  if (!updatedUser) {
+    throw new Error("Usuário não encontrado após reset");
+  }
+
+  return updatedUser;
+}
+
 // Verificar se usuário precisa definir senha
 export async function userNeedsPassword(instagram: string): Promise<boolean> {
   const user = await getUserByInstagram(instagram);

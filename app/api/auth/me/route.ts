@@ -1,38 +1,35 @@
-import { NextResponse } from 'next/server';
-import { getCurrentUser } from '@/lib/auth';
-import { getUserById } from '@/lib/db';
+import { NextResponse } from "next/server";
+import { getCurrentUser } from "@/lib/auth";
+import { getUserById } from "@/lib/db";
 
 export async function GET() {
   try {
     const currentUser = await getCurrentUser();
-    
+
     if (!currentUser) {
-      return NextResponse.json(
-        { error: 'Não autenticado' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     }
 
     const user = await getUserById(currentUser.userId);
-    
+
     if (!user) {
       return NextResponse.json(
-        { error: 'Usuário não encontrado' },
+        { error: "Usuário não encontrado" },
         { status: 404 }
       );
     }
 
     return NextResponse.json({
       user: {
-        id: user.id,
+        _id: user._id,
         instagram: user.instagram,
         hasSetPassword: user.hasSetPassword,
       },
     });
   } catch (error) {
-    console.error('Get user error:', error);
+    console.error("Get user error:", error);
     return NextResponse.json(
-      { error: 'Erro ao buscar usuário' },
+      { error: "Erro ao buscar usuário" },
       { status: 500 }
     );
   }

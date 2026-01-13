@@ -38,14 +38,12 @@ export default function LoginPage() {
       if (!response.ok) {
         setError(data.error || "Erro ao fazer login");
         setLoading(false);
-        // Se for erro de autenticação, mostrar opção de esqueci senha
         if (response.status === 401) {
           setShowForgotPassword(true);
         }
         return;
       }
 
-      // Redirecionar para a página principal
       router.push("/");
       router.refresh();
     } catch (err) {

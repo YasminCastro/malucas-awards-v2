@@ -56,7 +56,6 @@ export default function SignupPage() {
         return;
       }
 
-      // Usuário verificado, mostrar campos de senha
       setUserVerified(true);
       setChecking(false);
       setErrorType(null);
@@ -71,7 +70,6 @@ export default function SignupPage() {
     e.preventDefault();
     setError("");
 
-    // Validações
     if (password.length < 6) {
       setError("A senha deve ter pelo menos 6 caracteres");
       return;
@@ -101,7 +99,6 @@ export default function SignupPage() {
         return;
       }
 
-      // Redirecionar para a página principal
       router.push("/");
       router.refresh();
     } catch (err) {
@@ -138,7 +135,6 @@ export default function SignupPage() {
           </div>
 
           {!userVerified ? (
-            // Passo 1: Verificar Instagram
             <form onSubmit={handleCheckUser} className="space-y-5">
               <div className="space-y-2">
                 <Label
@@ -197,7 +193,6 @@ export default function SignupPage() {
               </Button>
             </form>
           ) : (
-            // Passo 2: Definir senha
             <form onSubmit={handleSetPassword} className="space-y-5">
               <div className="space-y-2">
                 <Label className="text-black font-bold text-sm uppercase">

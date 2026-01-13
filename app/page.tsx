@@ -1,16 +1,11 @@
-import { redirect } from "next/navigation";
-import { getCurrentUser } from "@/lib/auth";
 import { getCategories } from "@/lib/db";
-import { HomeClient } from "@/components/home-client";
+import { PublicHomeClient } from "@/components/public-home-client";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 export default async function Home() {
-  const user = await getCurrentUser();
-
-  if (!user) {
-    redirect("/login");
-  }
-
-  // Buscar categorias do banco de dados
+  // Buscar categorias do banco de dados (público)
   const categories = await getCategories();
 
   // Converter para o formato esperado pelos componentes
@@ -23,5 +18,5 @@ export default async function Home() {
     })),
   }));
 
-  return <HomeClient categories={formattedCategories} user={user} />;
+  return <PublicHomeClient categories={formattedCategories} />;
 }

@@ -135,27 +135,24 @@ export function HomeClient({ categories, user }: HomeClientProps) {
                   className="bg-white border-4! border-black rounded-lg px-6 border-b-0"
                 >
                   <AccordionTrigger className="py-4 hover:no-underline [&>svg]:text-black">
-                    <div className="flex items-center justify-between w-full pr-4">
-                      <h2 className="text-2xl font-bold text-black uppercase tracking-tight">
-                        {category.name}
-                      </h2>
-                      {votedParticipant && (
+                    <h2 className="text-2xl font-bold text-black uppercase tracking-tight">
+                      {category.name}
+                    </h2>
+                  </AccordionTrigger>
+                  <AccordionContent className="pt-0 pb-6">
+                    {votedParticipant && (
+                      <div className="mb-4 flex justify-end">
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setEditingCategory(category);
-                          }}
+                          onClick={() => setEditingCategory(category)}
                           className="flex items-center gap-2"
                         >
                           <Edit2 className="w-4 h-4" />
                           Editar Voto
                         </Button>
-                      )}
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="pt-0 pb-6">
+                      </div>
+                    )}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {category.participants.map((participant, index) => {
                         const isVoted =

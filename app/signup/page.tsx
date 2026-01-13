@@ -99,7 +99,7 @@ export default function SignupPage() {
         return;
       }
 
-      router.push("/");
+      router.push("/vote");
       router.refresh();
     } catch (err) {
       setError("Erro ao conectar com o servidor");

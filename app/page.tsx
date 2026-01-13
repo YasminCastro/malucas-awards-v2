@@ -11,6 +11,11 @@ export default async function Home() {
   // Buscar status de votação
   const settings = await getSettings();
   const votingStatus = settings?.status || "escolhendo-categorias";
+  const eventDate = settings?.eventDate 
+    ? (settings.eventDate instanceof Date 
+        ? settings.eventDate.toISOString().split('T')[0] 
+        : settings.eventDate)
+    : null;
 
   // Converter para o formato esperado pelos componentes
   const formattedCategories = categories.map((category) => ({
@@ -22,5 +27,5 @@ export default async function Home() {
     })),
   }));
 
-  return <PublicHomeClient categories={formattedCategories} votingStatus={votingStatus} />;
+  return <PublicHomeClient categories={formattedCategories} votingStatus={votingStatus} eventDate={eventDate} />;
 }

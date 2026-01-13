@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import {
   Card,
   CardContent,
@@ -32,6 +33,7 @@ const statusOptions: { value: VotingStatus; label: string }[] = [
 export default function AdminConfigPage() {
   const router = useRouter();
   const [status, setStatus] = useState<VotingStatus>("escolhendo-categorias");
+  const [eventDate, setEventDate] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -53,6 +55,9 @@ export default function AdminConfigPage() {
         if (data.status) {
           setStatus(data.status);
         }
+        if (data.eventDate) {
+          setEventDate(data.eventDate);
+        }
       }
     } catch (error: any) {
       console.error("Erro ao carregar configurações:", error);
@@ -72,7 +77,7 @@ export default function AdminConfigPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ status }),
+        body: JSON.stringify({ status, eventDate: eventDate || null }),
       });
 
       if (response.status === 401 || response.status === 403) {
@@ -161,6 +166,20 @@ export default function AdminConfigPage() {
                     </option>
                   ))}
                 </select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="eventDate">Data do Evento</Label>
+                <Input
+                  id="eventDate"
+                  type="date"
+                  value={eventDate}
+                  onChange={(e) => setEventDate(e.target.value)}
+                  className="w-full px-3 py-2 border-2 border-black rounded-md bg-white text-black focus:outline-none focus:ring-2 focus:ring-[#f93fff] focus:border-transparent"
+                />
+                <p className="text-sm text-gray-600">
+                  Data em que os resultados serão divulgados
+                </p>
               </div>
 
               {error && (

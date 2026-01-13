@@ -555,6 +555,7 @@ export async function getCategoryResults(categoryId: string): Promise<
 export interface Settings {
   _id?: string;
   status: "escolhendo-categorias" | "pre-votacao" | "votacao" | "pos-votacao" | "resultado";
+  eventDate?: Date | string;
   updatedAt?: Date;
 }
 
@@ -573,7 +574,7 @@ export async function getSettings(): Promise<Settings | null> {
 
 // Atualizar ou criar configurações
 export async function updateSettings(
-  updates: Partial<Pick<Settings, "status">>
+  updates: Partial<Pick<Settings, "status" | "eventDate">>
 ): Promise<Settings> {
   const collection = await getSettingsCollection();
 
@@ -583,6 +584,13 @@ export async function updateSettings(
 
   if (updates.status !== undefined) {
     updateData.status = updates.status;
+  }
+
+  if (updates.eventDate !== undefined) {
+    // Converter string para Date se necessário
+    updateData.eventDate = updates.eventDate instanceof Date 
+      ? updates.eventDate 
+      : updates.eventDate ? new Date(updates.eventDate) : null;
   }
 
   // Usar upsert para criar se não existir

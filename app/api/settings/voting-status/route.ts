@@ -8,8 +8,13 @@ export async function GET() {
     
     // Se não existir configurações, retornar status padrão
     const status = settings?.status || "escolhendo-categorias";
+    const eventDate = settings?.eventDate 
+      ? (settings.eventDate instanceof Date 
+          ? settings.eventDate.toISOString().split('T')[0] 
+          : settings.eventDate)
+      : null;
 
-    return NextResponse.json({ status });
+    return NextResponse.json({ status, eventDate });
   } catch (error: any) {
     console.error("Erro ao buscar status de votação:", error);
     return NextResponse.json(

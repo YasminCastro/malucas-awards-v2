@@ -15,12 +15,14 @@ export async function GET() {
     // Se não existir configurações, retornar status padrão
     if (!settings) {
       return NextResponse.json({ 
-        status: "escolhendo-categorias" 
+        status: "escolhendo-categorias",
+        eventDate: null
       });
     }
 
     return NextResponse.json({ 
-      status: settings.status 
+      status: settings.status,
+      eventDate: settings.eventDate ? (settings.eventDate instanceof Date ? settings.eventDate.toISOString().split('T')[0] : settings.eventDate) : null
     });
   } catch (error: any) {
     console.error("Erro ao buscar configurações:", error);
@@ -40,7 +42,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { status } = body;
+    const { status, eventDate } = body;
 
     const validStatuses = [
       "escolhendo-categorias",
@@ -57,9 +59,15 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const settings = await updateSettings({ status });
+    const updateData: any = { status };
+    if (eventDate !== undefined) {
+      updateData.eventDate = eventDate || null;
+    }
+
+    const settings = await updateSettings(updateData);
     return NextResponse.json({ 
-      status: settings.status 
+      status: settings.status,
+      eventDate: settings.eventDate ? (settings.eventDate instanceof Date ? settings.eventDate.toISOString().split('T')[0] : settings.eventDate) : null
     });
   } catch (error: any) {
     console.error("Erro ao atualizar configurações:", error);

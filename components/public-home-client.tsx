@@ -44,9 +44,10 @@ interface CategoryResult {
 interface PublicHomeClientProps {
   categories: Category[];
   votingStatus: VotingStatus;
+  eventDate?: string | null;
 }
 
-export function PublicHomeClient({ categories, votingStatus }: PublicHomeClientProps) {
+export function PublicHomeClient({ categories, votingStatus, eventDate }: PublicHomeClientProps) {
   const [categoryResults, setCategoryResults] = useState<CategoryResult[]>([]);
   const [resultsLoading, setResultsLoading] = useState(false);
 
@@ -109,7 +110,9 @@ export function PublicHomeClient({ categories, votingStatus }: PublicHomeClientP
                   Premiação anual dos melhores momentos
                   {votingStatus === "pos-votacao" && (
                     <span className="block mt-1 font-medium">
-                      O resultado será divulgado no dia do evento
+                      {eventDate 
+                        ? `O resultado será divulgado no dia ${new Date(eventDate + 'T00:00:00').toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' })}`
+                        : "O resultado será divulgado no dia do evento"}
                     </span>
                   )}
                 </p>

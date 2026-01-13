@@ -54,9 +54,10 @@ interface HomeClientProps {
   categories: Category[];
   user: User;
   votingStatus: VotingStatus;
+  eventDate?: string | null;
 }
 
-export function HomeClient({ categories, user, votingStatus }: HomeClientProps) {
+export function HomeClient({ categories, user, votingStatus, eventDate }: HomeClientProps) {
   const [userVotes, setUserVotes] = useState<Record<string, string>>({});
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [loading, setLoading] = useState(true);
@@ -186,7 +187,9 @@ export function HomeClient({ categories, user, votingStatus }: HomeClientProps) 
                     <span className="font-bold">@{user.instagram}</span>
                     {votingStatus === "pos-votacao" && (
                       <span className="block mt-1 font-medium">
-                        O resultado será divulgado no dia do evento
+                        {eventDate 
+                          ? `O resultado será divulgado no dia ${new Date(eventDate + 'T00:00:00').toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' })}`
+                          : "O resultado será divulgado no dia do evento"}
                       </span>
                     )}
                   </p>

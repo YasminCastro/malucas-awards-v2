@@ -6,7 +6,7 @@ export async function GET() {
   try {
     const suggestions = await getCategorySuggestions();
     
-    return NextResponse.json(
+    const response = NextResponse.json(
       { 
         success: true, 
         suggestions: suggestions.map(suggestion => ({
@@ -20,6 +20,13 @@ export async function GET() {
       },
       { status: 200 }
     );
+    
+    // Headers para evitar cache
+    response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+    response.headers.set("Pragma", "no-cache");
+    response.headers.set("Expires", "0");
+    
+    return response;
   } catch (error: any) {
     console.error("Erro ao buscar sugestões de categoria:", error);
     return NextResponse.json(

@@ -66,7 +66,14 @@ export default function CategorySuggestionPage() {
 
   const loadSuggestions = async () => {
     try {
-      const response = await fetch("/api/category-suggestions");
+      // Adicionar timestamp para evitar cache
+      const timestamp = Date.now();
+      const response = await fetch(`/api/category-suggestions?t=${timestamp}`, {
+        cache: "no-store",
+        headers: {
+          "Cache-Control": "no-cache",
+        },
+      });
       if (response.ok) {
         const data = await response.json();
         setSuggestions(data.suggestions || []);
@@ -128,6 +135,9 @@ export default function CategorySuggestionPage() {
         return updated;
       });
       setExpandedSuggestion(null);
+      
+      // Forçar reload das sugestões (invalidar cache no servidor já foi feito)
+      setLoadingSuggestions(true);
       await loadSuggestions();
     } catch (error: any) {
       setError(error.message || "Erro ao adicionar participantes");

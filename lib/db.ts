@@ -776,5 +776,8 @@ export async function addParticipantsToSuggestion(
     throw new Error("Sugestão não encontrada após atualização");
   }
 
+  // Invalidar cache de sugestões
+  cache.delete(CacheKeys.CATEGORY_SUGGESTIONS);
+
   return updatedSuggestion;
 }

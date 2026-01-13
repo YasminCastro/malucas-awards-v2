@@ -41,6 +41,7 @@ export default function CategorySuggestionPage() {
   const [loadingSuggestions, setLoadingSuggestions] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [showForm, setShowForm] = useState(false);
   const [expandedSuggestion, setExpandedSuggestion] = useState<string | null>(null);
   const [addingParticipants, setAddingParticipants] = useState<string | null>(null);
   const [selectedParticipantsToAdd, setSelectedParticipantsToAdd] = useState<Record<string, string[]>>({});
@@ -204,6 +205,7 @@ export default function CategorySuggestionPage() {
       await loadSuggestions(); // Recarregar a lista após envio
       setTimeout(() => {
         setSuccess(false);
+        setShowForm(false); // Fechar formulário após sucesso
       }, 2000);
     } catch (error: any) {
       setError(error.message || "Erro ao enviar sugestão");
@@ -248,14 +250,46 @@ export default function CategorySuggestionPage() {
           </div>
         </div>
 
-        <Card className="border-4 border-black">
-          <CardHeader>
-            <CardTitle>Sugestão de Categoria</CardTitle>
-            <CardDescription>
-              Preencha os dados da categoria que você gostaria de sugerir
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+        {/* Botão para mostrar/esconder formulário */}
+        {!showForm && (
+          <Card className="border-4 border-black mb-6">
+            <CardContent className="pt-6">
+              <Button
+                onClick={() => setShowForm(true)}
+                className="w-full"
+                size="lg"
+              >
+                Sugerir Categoria
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Formulário de Sugestão */}
+        {showForm && (
+          <Card className="border-4 border-black mb-6">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Sugestão de Categoria</CardTitle>
+                  <CardDescription>
+                    Preencha os dados da categoria que você gostaria de sugerir
+                  </CardDescription>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setShowForm(false);
+                    setError(null);
+                    setSuccess(false);
+                  }}
+                >
+                  Cancelar
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="suggesterName">Seu Nome</Label>
@@ -354,6 +388,7 @@ export default function CategorySuggestionPage() {
             </form>
           </CardContent>
         </Card>
+        )}
 
         {/* Lista de Sugestões */}
         <Card className="border-4 border-black mt-6">

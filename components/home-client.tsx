@@ -113,7 +113,18 @@ export function HomeClient({ categories, user }: HomeClientProps) {
                   </p>
                 </div>
               </div>
-              <LogoutButton />
+              <div className="flex gap-2">
+                {user.isAdmin && (
+                  <Button
+                    variant="outline"
+                    onClick={() => (window.location.href = "/admin")}
+                    className="bg-white border-2 border-black text-black hover:bg-gray-100 font-bold uppercase h-12 px-6 rounded-md"
+                  >
+                    Admin
+                  </Button>
+                )}
+                <LogoutButton />
+              </div>
             </div>
             <VotingSection categories={categories} />
           </div>

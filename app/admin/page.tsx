@@ -44,6 +44,7 @@ export default function AdminPage() {
               <Button
                 variant="outline"
                 onClick={() => (window.location.href = "/")}
+                className="h-12 px-6"
               >
                 Voltar
               </Button>

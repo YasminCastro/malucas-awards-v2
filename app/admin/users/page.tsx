@@ -230,12 +230,17 @@ export default function AdminUsersPage() {
               </div>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" onClick={() => router.push("/admin")}>
+              <Button
+                variant="outline"
+                onClick={() => router.push("/admin")}
+                className="h-12 px-6"
+              >
                 Voltar ao Painel
               </Button>
               <Button
                 variant="outline"
                 onClick={() => (window.location.href = "/")}
+                className="h-12 px-6"
               >
                 Início
               </Button>

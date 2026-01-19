@@ -12,8 +12,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { LogoutButton } from "@/components/logout-button";
-import Image from "next/image";
+import { Spinner } from "@/components/ui/spinner";
+import { AdminHeader } from "@/components/admin-header";
+import { Alert } from "@/components/alert";
 
 // Componente de imagem com fallback
 function ParticipantImage({
@@ -95,7 +96,6 @@ export default function AdminCategoriesPage() {
         setUsers(data.users || []);
       }
     } catch (error) {
-      // Silenciosamente falha se não conseguir carregar usuários
       console.error("Erro ao carregar usuários:", error);
     }
   };
@@ -296,7 +296,7 @@ export default function AdminCategoriesPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-linear-to-br from-[#f93fff] to-[#f7f908] flex items-center justify-center">
-        <div className="text-white text-xl">Carregando...</div>
+        <Spinner className="size-8" />
       </div>
     );
   }
@@ -309,53 +309,17 @@ export default function AdminCategoriesPage() {
   return (
     <div className="min-h-screen bg-linear-to-br from-[#f93fff] to-[#f7f908] p-4 pb-8">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="bg-white border-4 border-black rounded-lg p-6 mb-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="relative w-20 h-20 shrink-0">
-                <Image
-                  src="/logo.png"
-                  alt="Malucas Awards Logo"
-                  fill
-                  className="object-contain"
-                  priority
-                />
-              </div>
-              <div>
-                <h1 className="text-4xl font-bold text-black uppercase tracking-tight">
-                  Gerenciamento de Categorias
-                </h1>
-                <p className="text-black text-sm mt-1">
-                  Gerencie todas as categorias de premiação
-                </p>
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                onClick={() => router.push("/admin")}
-                className="h-12 px-6"
-              >
-                Voltar ao Painel
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => (window.location.href = "/")}
-                className="h-12 px-6"
-              >
-                Início
-              </Button>
-              <LogoutButton />
-            </div>
-          </div>
-        </div>
+        <AdminHeader title="Gerenciamento de Categorias" description="Gerencie todas as categorias de premiação" />
+
 
         {/* Error Message */}
         {error && (
-          <div className="bg-red-100 border-2 border-red-500 rounded-lg p-4 mb-6 text-red-700">
-            {error}
-          </div>
+          <Alert
+            title={`Erro ao ${editingCategory ? "atualizar" : "criar"} categoria`}
+            description={`Ocorreu um erro ao ${editingCategory ? "atualizar" : "criar"} a categoria. Por favor, tente novamente. \n Erro: ${error}`}
+            open={!!error}
+            onOpenChange={() => setError(null)}
+          />
         )}
 
         {/* Create/Edit Form */}

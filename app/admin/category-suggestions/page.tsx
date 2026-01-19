@@ -12,6 +12,9 @@ import {
 } from "@/components/ui/card";
 import { LogoutButton } from "@/components/logout-button";
 import Image from "next/image";
+import { Spinner } from "@/components/ui/spinner";
+import { AdminHeader } from "@/components/admin-header";
+import { Alert } from "@/components/alert";
 
 interface CategorySuggestion {
   id: string;
@@ -102,10 +105,8 @@ export default function AdminCategorySuggestionsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-linear-to-br from-[#f93fff] to-[#f7f908] p-4 pb-8">
-        <div className="max-w-6xl mx-auto">
-          <p className="text-center py-8">Carregando...</p>
-        </div>
+      <div className="min-h-screen bg-linear-to-br from-[#f93fff] to-[#f7f908] flex items-center justify-center">
+        <Spinner className="size-8" />
       </div>
     );
   }
@@ -114,44 +115,15 @@ export default function AdminCategorySuggestionsPage() {
     <div className="min-h-screen bg-linear-to-br from-[#f93fff] to-[#f7f908] p-4 pb-8">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="bg-white border-4 border-black rounded-lg p-6 mb-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="relative w-20 h-20 shrink-0">
-                <Image
-                  src="/logo.png"
-                  alt="Malucas Awards Logo"
-                  fill
-                  className="object-contain"
-                  priority
-                />
-              </div>
-              <div>
-                <h1 className="text-4xl font-bold text-black uppercase tracking-tight">
-                  Sugestões de Categorias
-                </h1>
-                <p className="text-black text-sm mt-1">
-                  Gerencie as sugestões de categorias enviadas
-                </p>
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                onClick={() => router.push("/admin")}
-                className="h-12 px-6"
-              >
-                Voltar
-              </Button>
-              <LogoutButton />
-            </div>
-          </div>
-        </div>
+        <AdminHeader title="Sugestões de Categorias" description="Gerencie as sugestões de categorias enviadas" />
 
         {error && (
-          <div className="mb-6 p-4 bg-red-100 border-2 border-red-500 rounded-lg text-red-700">
-            {error}
-          </div>
+          <Alert
+            title={`Erro ao carregar sugestões`}
+            description={`Ocorreu um erro ao carregar as sugestões. Por favor, tente novamente. \n Erro: ${error}`}
+            open={!!error}
+            onOpenChange={() => setError(null)}
+          />
         )}
 
         {/* Lista de Sugestões */}

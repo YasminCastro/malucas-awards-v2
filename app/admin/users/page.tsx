@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/card";
 import { AdminHeader } from "@/components/admin-header";
 import { Alert } from "@/components/alert";
+import { Spinner } from "@/components/ui/spinner";
 
 interface User {
   _id: string;
@@ -194,7 +195,7 @@ export default function AdminUsersPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-linear-to-br from-[#f93fff] to-[#f7f908] flex items-center justify-center">
-        <div className="text-white text-xl">Carregando...</div>
+        <Spinner className="size-8" />
       </div>
     );
   }

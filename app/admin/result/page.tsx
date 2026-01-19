@@ -18,6 +18,8 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Spinner } from "@/components/ui/spinner";
+import { AdminHeader } from "@/components/admin-header";
 
 interface CategoryResult {
   categoryId: string;
@@ -108,7 +110,7 @@ export default function AdminResultPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-linear-to-br from-[#f93fff] to-[#f7f908] flex items-center justify-center">
-        <div className="text-white text-xl">Carregando...</div>
+        <Spinner className="size-8" />
       </div>
     );
   }
@@ -117,46 +119,8 @@ export default function AdminResultPage() {
     <div className="min-h-screen bg-linear-to-br from-[#f93fff] to-[#f7f908] p-4 pb-8">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="bg-white border-4 border-black rounded-lg p-6 mb-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="relative w-20 h-20 shrink-0">
-                <Image
-                  src="/logo.png"
-                  alt="Malucas Awards Logo"
-                  fill
-                  className="object-contain"
-                  priority
-                />
-              </div>
-              <div>
-                <h1 className="text-4xl font-bold text-black uppercase tracking-tight">
-                  Resultados
-                </h1>
-                <p className="text-black text-sm mt-1">
-                  Visualização de resultados e votos
-                </p>
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                onClick={() => router.push("/admin")}
-                className="h-12 px-6"
-              >
-                Voltar ao Painel
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => (window.location.href = "/")}
-                className="h-12 px-6"
-              >
-                Início
-              </Button>
-              <LogoutButton />
-            </div>
-          </div>
-        </div>
+        <AdminHeader title="Resultados" description="Visualização de resultados e votos" />
+
 
         {/* Error Message */}
         {error && (
@@ -194,10 +158,9 @@ export default function AdminResultPage() {
                       return (
                         <div
                           key={result.participantInstagram}
-                          className={`border-4 rounded-lg p-4 ${
-                            positionColors[index] ||
+                          className={`border-4 rounded-lg p-4 ${positionColors[index] ||
                             "bg-gray-100 border-gray-400"
-                          }`}
+                            }`}
                         >
                           <div className="text-center mb-3">
                             <span className="text-4xl">

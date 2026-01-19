@@ -1,24 +1,16 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+
 import { LogoutButton } from "@/components/logout-button";
 import Image from "next/image";
+import { AdminCard } from "@/components/admin-card";
 
 export default function AdminPage() {
-  const router = useRouter();
 
   return (
     <div className="min-h-screen bg-linear-to-br from-[#f93fff] to-[#f7f908] p-4 pb-8">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
         <div className="bg-white border-4 border-black rounded-lg p-6 mb-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
@@ -52,93 +44,12 @@ export default function AdminPage() {
             </div>
           </div>
         </div>
-
-        {/* Admin Options */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <Card className="border-4 border-black hover:shadow-lg transition-shadow cursor-pointer">
-            <CardHeader>
-              <CardTitle>Gerenciamento de Usuários</CardTitle>
-              <CardDescription>
-                Crie, edite e gerencie usuários do sistema
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button
-                className="w-full"
-                onClick={() => router.push("/admin/users")}
-              >
-                Acessar
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card className="border-4 border-black hover:shadow-lg transition-shadow cursor-pointer">
-            <CardHeader>
-              <CardTitle>Gerenciamento de Categorias</CardTitle>
-              <CardDescription>
-                Crie, edite e gerencie categorias de premiação
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button
-                className="w-full"
-                onClick={() => router.push("/admin/categories")}
-              >
-                Acessar
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card className="border-4 border-black hover:shadow-lg transition-shadow cursor-pointer">
-            <CardHeader>
-              <CardTitle>Resultados</CardTitle>
-              <CardDescription>
-                Visualize resultados e votos dos usuários
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button
-                className="w-full"
-                onClick={() => router.push("/admin/result")}
-              >
-                Acessar
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card className="border-4 border-black hover:shadow-lg transition-shadow cursor-pointer">
-            <CardHeader>
-              <CardTitle>Sugestões de Categorias</CardTitle>
-              <CardDescription>
-                Gerencie as sugestões de categorias enviadas pelos usuários
-              </CardDescription>
-            </CardHeader>
-          <CardContent>
-            <Button
-              className="w-full"
-              onClick={() => router.push("/admin/category-suggestions")}
-            >
-              Acessar
-            </Button>
-          </CardContent>
-        </Card>
-
-          <Card className="border-4 border-black hover:shadow-lg transition-shadow cursor-pointer">
-            <CardHeader>
-              <CardTitle>Configurações</CardTitle>
-              <CardDescription>
-                Configure o status e outras opções do sistema
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button
-                className="w-full"
-                onClick={() => router.push("/admin/config")}
-              >
-                Acessar
-              </Button>
-            </CardContent>
-          </Card>
+          <AdminCard title="Gerenciamento de Usuários" description="Crie, edite e gerencie usuários do sistema" path="/admin/users" />
+          <AdminCard title="Gerenciamento de Categorias" description="Crie, edite e gerencie categorias de premiação" path="/admin/categories" />
+          <AdminCard title="Resultados" description="Visualize resultados e votos dos usuários" path="/admin/result" />
+          <AdminCard title="Sugestões de Categorias" description="Gerencie as sugestões de categorias enviadas pelos usuários" path="/admin/category-suggestions" />
+          <AdminCard title="Configurações" description="Configure o status e outras opções do sistema" path="/admin/config" />
         </div>
       </div>
     </div>

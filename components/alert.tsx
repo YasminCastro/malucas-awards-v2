@@ -3,6 +3,7 @@
 import {
     AlertDialog,
     AlertDialogAction,
+    AlertDialogCancel,
     AlertDialogContent,
     AlertDialogDescription,
     AlertDialogFooter,
@@ -15,9 +16,23 @@ interface AlertProps {
     description: string;
     open: boolean;
     onOpenChange: (open: boolean) => void;
+    confirmText?: string;
+    cancelText?: string;
+    onConfirm?: () => void;
 }
 
-export function Alert({ title, description, open, onOpenChange }: AlertProps) {
+export function Alert({
+    title,
+    description,
+    open,
+    onOpenChange,
+    confirmText,
+    cancelText,
+    onConfirm,
+}: AlertProps) {
+    const isConfirm = typeof onConfirm === "function" || typeof cancelText === "string";
+    const actionLabel = confirmText ?? "OK";
+
     return (
         <AlertDialog open={open} onOpenChange={onOpenChange}>
             <AlertDialogContent>
@@ -28,8 +43,19 @@ export function Alert({ title, description, open, onOpenChange }: AlertProps) {
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                    <AlertDialogAction onClick={() => onOpenChange(false)}>
-                        OK
+                    {isConfirm && (
+                        <AlertDialogCancel onClick={() => onOpenChange(false)}>
+                            {cancelText ?? "Cancelar"}
+                        </AlertDialogCancel>
+                    )}
+                    <AlertDialogAction
+                        onClick={() => {
+                            onConfirm?.();
+                            onOpenChange(false);
+                        }}
+                        className={actionLabel === "Deletar" ? "bg-red-600 hover:bg-red-700" : undefined}
+                    >
+                        {actionLabel}
                     </AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>

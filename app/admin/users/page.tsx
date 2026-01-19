@@ -33,6 +33,13 @@ export default function AdminUsersPage() {
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [deleteUserDialogOpen, setDeleteUserDialogOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [resetPasswordDialogOpen, setResetPasswordDialogOpen] = useState(false);
+  const [userToResetPassword, setUserToResetPassword] = useState<User | null>(
+    null
+  );
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     instagram: "",
     isAdmin: false,
@@ -129,10 +136,6 @@ export default function AdminUsersPage() {
   };
 
   const handleDeleteUser = async (id: string) => {
-    if (!confirm("Tem certeza que deseja deletar este usuário?")) {
-      return;
-    }
-
     try {
       const response = await fetch(`/api/admin/users/${id}`, {
         method: "DELETE",
@@ -150,15 +153,12 @@ export default function AdminUsersPage() {
     }
   };
 
-  const handleResetPassword = async (id: string, instagram: string) => {
-    if (
-      !confirm(
-        `Tem certeza que deseja resetar a senha do usuário @${instagram}?`
-      )
-    ) {
-      return;
-    }
+  const requestDeleteUser = (user: User) => {
+    setUserToDelete(user);
+    setDeleteUserDialogOpen(true);
+  };
 
+  const handleResetPassword = async (id: string, instagram: string) => {
     try {
       const response = await fetch(`/api/admin/users/${id}/reset-password`, {
         method: "POST",
@@ -171,10 +171,15 @@ export default function AdminUsersPage() {
 
       await loadUsers();
       setError(null);
-      alert("Senha resetada com sucesso!");
+      setSuccessMessage(`Senha do usuário @${instagram} resetada com sucesso!`);
     } catch (error: any) {
       setError(error.message);
     }
+  };
+
+  const requestResetPassword = (user: User) => {
+    setUserToResetPassword(user);
+    setResetPasswordDialogOpen(true);
   };
 
   const startEdit = (user: User) => {
@@ -217,6 +222,58 @@ export default function AdminUsersPage() {
             description={`Ocorreu um erro ao ${editingUser ? "atualizar" : "criar"} o usuário. Por favor, tente novamente. \n Erro: ${error}`}
             open={!!error}
             onOpenChange={() => setError(null)}
+          />
+        )}
+
+        {/* Delete confirmation */}
+        {userToDelete && (
+          <Alert
+            title="Deletar usuário"
+            description={`Tem certeza que deseja deletar o usuário @${userToDelete.instagram}?\nEssa ação não pode ser desfeita.`}
+            open={deleteUserDialogOpen}
+            onOpenChange={(open) => {
+              setDeleteUserDialogOpen(open);
+              if (!open) setUserToDelete(null);
+            }}
+            cancelText="Cancelar"
+            confirmText="Deletar"
+            onConfirm={() => {
+              const id = userToDelete._id;
+              setDeleteUserDialogOpen(false);
+              setUserToDelete(null);
+              void handleDeleteUser(id);
+            }}
+          />
+        )}
+
+        {/* Reset password confirmation */}
+        {userToResetPassword && (
+          <Alert
+            title="Resetar senha"
+            description={`Tem certeza que deseja resetar a senha do usuário @${userToResetPassword.instagram}?`}
+            open={resetPasswordDialogOpen}
+            onOpenChange={(open) => {
+              setResetPasswordDialogOpen(open);
+              if (!open) setUserToResetPassword(null);
+            }}
+            cancelText="Cancelar"
+            confirmText="Resetar"
+            onConfirm={() => {
+              const { _id, instagram } = userToResetPassword;
+              setResetPasswordDialogOpen(false);
+              setUserToResetPassword(null);
+              void handleResetPassword(_id, instagram);
+            }}
+          />
+        )}
+
+        {/* Success message */}
+        {successMessage && (
+          <Alert
+            title="Sucesso"
+            description={successMessage}
+            open={!!successMessage}
+            onOpenChange={() => setSuccessMessage(null)}
           />
         )}
 
@@ -349,7 +406,7 @@ export default function AdminUsersPage() {
                             variant="outline"
                             size="sm"
                             onClick={() =>
-                              handleResetPassword(user._id, user.instagram)
+                              requestResetPassword(user)
                             }
                           >
                             Resetar Senha
@@ -357,7 +414,7 @@ export default function AdminUsersPage() {
                           <Button
                             variant="destructive"
                             size="sm"
-                            onClick={() => handleDeleteUser(user._id)}
+                            onClick={() => requestDeleteUser(user)}
                           >
                             Deletar
                           </Button>

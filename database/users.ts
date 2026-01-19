@@ -55,10 +55,15 @@ export async function getUserById(id: string): Promise<User | null> {
 // Criar usuário pré-registrado (sem senha)
 export async function createPreRegisteredUser(
     instagram: string,
+    name: string,
     isAdmin: boolean
 ): Promise<User> {
     await initializeIndexes();
     const collection = await getUsersCollection();
+
+    if (!name || !name.trim()) {
+        throw new Error("Nome é obrigatório");
+    }
 
     const existing = await getUserByInstagram(instagram);
     if (existing) {
@@ -66,6 +71,7 @@ export async function createPreRegisteredUser(
     }
 
     const newUser: Omit<User, "_id"> = {
+        name: name.trim(),
         instagram: instagram.toLowerCase(),
         passwordHash: "",
         hasSetPassword: false,
@@ -85,7 +91,8 @@ export async function createPreRegisteredUser(
 // Criar novo usuário (mantido para compatibilidade, mas não usado no signup)
 export async function createUser(
     instagram: string,
-    passwordHash: string
+    passwordHash: string,
+    name?: string
 ): Promise<User> {
     await initializeIndexes();
     const collection = await getUsersCollection();
@@ -97,6 +104,7 @@ export async function createUser(
     }
 
     const newUser: Omit<User, "_id"> = {
+        name: name?.trim() || undefined,
         instagram: instagram.toLowerCase(),
         passwordHash,
         hasSetPassword: true,
@@ -222,12 +230,15 @@ export async function saveUsers(users: User[]): Promise<void> {
 // Atualizar usuário (para admin)
 export async function updateUser(
     id: string,
-    updates: Partial<Pick<User, "instagram" | "hasSetPassword" | "isAdmin">>
+    updates: Partial<Pick<User, "name" | "instagram" | "hasSetPassword" | "isAdmin">>
 ): Promise<User> {
     await initializeIndexes();
     const collection = await getUsersCollection();
 
     const updateData: any = {};
+    if (updates.name !== undefined) {
+        updateData.name = updates.name.trim();
+    }
     if (updates.instagram !== undefined) {
         updateData.instagram = updates.instagram.toLowerCase();
     }
@@ -236,6 +247,10 @@ export async function updateUser(
     }
     if (updates.isAdmin !== undefined) {
         updateData.isAdmin = updates.isAdmin;
+    }
+
+    if (updateData.name !== undefined && !updateData.name) {
+        throw new Error("Nome é obrigatório");
     }
 
     const { ObjectId } = await import("mongodb");

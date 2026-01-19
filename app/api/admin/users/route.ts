@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { instagram, isAdmin: userIsAdmin } = body;
+    const { instagram, name, isAdmin: userIsAdmin } = body;
 
     if (!instagram) {
       return NextResponse.json(
@@ -66,7 +66,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const newUser = await createPreRegisteredUser(instagram, userIsAdmin);
+    if (!name || !String(name).trim()) {
+      return NextResponse.json({ error: "Nome é obrigatório" }, { status: 400 });
+    }
+
+    const newUser = await createPreRegisteredUser(
+      instagram,
+      String(name).trim(),
+      Boolean(userIsAdmin)
+    );
 
     const { passwordHash: _, ...userWithoutPassword } = newUser as any;
     return NextResponse.json({
@@ -80,6 +88,9 @@ export async function POST(request: NextRequest) {
 
     if (error.message === "Usuário já existe") {
       return NextResponse.json({ error: "Usuário já existe" }, { status: 400 });
+    }
+    if (error.message === "Nome é obrigatório") {
+      return NextResponse.json({ error: "Nome é obrigatório" }, { status: 400 });
     }
 
     return NextResponse.json(

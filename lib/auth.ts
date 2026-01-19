@@ -8,6 +8,7 @@ const JWT_EXPIRES_IN = "7d";
 
 export interface User {
   _id: string;
+  name?: string;
   instagram: string;
   passwordHash: string;
   hasSetPassword: boolean;

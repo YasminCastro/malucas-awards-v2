@@ -18,6 +18,7 @@ import { Spinner } from "@/components/ui/spinner";
 
 interface User {
   _id: string;
+  name?: string;
   instagram: string;
   hasSetPassword: boolean;
   isAdmin?: boolean;
@@ -41,6 +42,7 @@ export default function AdminUsersPage() {
   );
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [formData, setFormData] = useState({
+    name: "",
     instagram: "",
     isAdmin: false,
   });
@@ -88,6 +90,7 @@ export default function AdminUsersPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          name: formData.name,
           instagram: formData.instagram,
           isAdmin: formData.isAdmin,
         }),
@@ -99,7 +102,7 @@ export default function AdminUsersPage() {
       }
 
       await loadUsers();
-      setFormData({ instagram: "", isAdmin: false });
+      setFormData({ name: "", instagram: "", isAdmin: false });
       // setShowCreateForm(false);
       setError(null);
     } catch (error: any) {
@@ -116,6 +119,7 @@ export default function AdminUsersPage() {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          name: formData.name,
           instagram: formData.instagram,
           isAdmin: formData.isAdmin,
         }),
@@ -128,7 +132,7 @@ export default function AdminUsersPage() {
 
       await loadUsers();
       setEditingUser(null);
-      setFormData({ instagram: "", isAdmin: false });
+      setFormData({ name: "", instagram: "", isAdmin: false });
       setError(null);
     } catch (error: any) {
       setError(error.message);
@@ -185,6 +189,7 @@ export default function AdminUsersPage() {
   const startEdit = (user: User) => {
     setEditingUser(user);
     setFormData({
+      name: user.name || "",
       instagram: user.instagram,
       isAdmin: user.isAdmin || false,
     });
@@ -193,7 +198,7 @@ export default function AdminUsersPage() {
 
   const cancelEdit = () => {
     setEditingUser(null);
-    setFormData({ instagram: "", isAdmin: false });
+    setFormData({ name: "", instagram: "", isAdmin: false });
     setShowCreateForm(false);
   };
 
@@ -229,7 +234,7 @@ export default function AdminUsersPage() {
         {userToDelete && (
           <Alert
             title="Deletar usuário"
-            description={`Tem certeza que deseja deletar o usuário @${userToDelete.instagram}?\nEssa ação não pode ser desfeita.`}
+            description={`Tem certeza que deseja deletar o usuário ${userToDelete.name ? `${userToDelete.name} ` : ""}@${userToDelete.instagram}?\nEssa ação não pode ser desfeita.`}
             open={deleteUserDialogOpen}
             onOpenChange={(open) => {
               setDeleteUserDialogOpen(open);
@@ -250,7 +255,7 @@ export default function AdminUsersPage() {
         {userToResetPassword && (
           <Alert
             title="Resetar senha"
-            description={`Tem certeza que deseja resetar a senha do usuário @${userToResetPassword.instagram}?`}
+            description={`Tem certeza que deseja resetar a senha do usuário ${userToResetPassword.name ? `${userToResetPassword.name} ` : ""}@${userToResetPassword.instagram}?`}
             open={resetPasswordDialogOpen}
             onOpenChange={(open) => {
               setResetPasswordDialogOpen(open);
@@ -296,6 +301,19 @@ export default function AdminUsersPage() {
                 onSubmit={editingUser ? handleUpdateUser : handleCreateUser}
                 className="space-y-4"
               >
+                <div>
+                  <Label htmlFor="name">Nome</Label>
+                  <Input
+                    id="name"
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
+                    placeholder="Nome completo"
+                    required
+                  />
+                </div>
                 <div>
                   <Label htmlFor="instagram">Instagram</Label>
                   <Input
@@ -358,6 +376,7 @@ export default function AdminUsersPage() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b-2 border-black">
+                    <th className="text-left p-3 font-bold">Nome</th>
                     <th className="text-left p-3 font-bold">Instagram</th>
                     <th className="text-left p-3 font-bold">Senha Definida</th>
                     <th className="text-left p-3 font-bold">Admin</th>
@@ -373,6 +392,7 @@ export default function AdminUsersPage() {
                       key={user._id}
                       className="border-b border-gray-200 hover:bg-gray-50"
                     >
+                      <td className="p-3 font-medium">{user.name || "-"}</td>
                       <td className="p-3 font-medium">@{user.instagram}</td>
                       <td className="p-3">
                         {user.hasSetPassword ? (

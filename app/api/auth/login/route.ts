@@ -50,7 +50,9 @@ export async function POST(request: NextRequest) {
       success: true,
       user: {
         _id: user._id,
+        name: user.name ?? null,
         instagram: user.instagram,
+        isAdmin: user.isAdmin ?? false,
       },
     });
   } catch (error) {

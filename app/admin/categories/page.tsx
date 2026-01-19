@@ -78,11 +78,13 @@ export default function AdminCategoriesPage() {
   const [newParticipant, setNewParticipant] = useState({
     instagram: "",
   });
-  const [users, setUsers] = useState<{ instagram: string }[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [filteredUsers, setFilteredUsers] = useState<{ instagram: string }[]>(
+  const [users, setUsers] = useState<{ instagram: string; name?: string }[]>(
     []
   );
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [filteredUsers, setFilteredUsers] = useState<
+    { instagram: string; name?: string }[]
+  >([]);
 
   useEffect(() => {
     checkAdminAndLoadCategories();
@@ -472,9 +474,16 @@ export default function AdminCategoriesPage() {
                               onClick={() => selectUser(user.instagram)}
                               className="w-full text-left px-4 py-2 hover:bg-gray-100 border-b border-gray-200 last:border-b-0"
                             >
-                              <span className="font-medium">
-                                @{user.instagram}
-                              </span>
+                              <div className="flex flex-col">
+                                <span className="font-medium">
+                                  {user.name ? user.name : `@${user.instagram}`}
+                                </span>
+                                {user.name && (
+                                  <span className="text-xs text-gray-600">
+                                    @{user.instagram}
+                                  </span>
+                                )}
+                              </div>
                             </button>
                           ))}
                         </div>

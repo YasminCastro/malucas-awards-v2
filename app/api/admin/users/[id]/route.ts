@@ -28,9 +28,14 @@ export async function PUT(
 
     const { id } = await params;
     const body = await request.json();
-    const { instagram, password, hasSetPassword, isAdmin: userIsAdmin } = body;
+    const { name, instagram, password, hasSetPassword, isAdmin: userIsAdmin } =
+      body;
 
     const updates: any = {};
+
+    if (name !== undefined) {
+      updates.name = String(name);
+    }
 
     if (instagram !== undefined) {
       updates.instagram = instagram;
@@ -73,6 +78,7 @@ export async function PUT(
       success: true,
       user: {
         _id: updatedUser._id,
+        name: updatedUser.name,
         instagram: updatedUser.instagram,
         hasSetPassword: updatedUser.hasSetPassword,
         isAdmin: updatedUser.isAdmin,
@@ -87,6 +93,9 @@ export async function PUT(
         { error: "Usuário não encontrado" },
         { status: 404 }
       );
+    }
+    if (error.message === "Nome é obrigatório") {
+      return NextResponse.json({ error: "Nome é obrigatório" }, { status: 400 });
     }
 
     return NextResponse.json(

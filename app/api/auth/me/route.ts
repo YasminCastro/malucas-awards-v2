@@ -22,8 +22,10 @@ export async function GET() {
     return NextResponse.json({
       user: {
         _id: user._id,
+        name: user.name ?? null,
         instagram: user.instagram,
         hasSetPassword: user.hasSetPassword,
+        isAdmin: user.isAdmin ?? false,
       },
     });
   } catch (error) {

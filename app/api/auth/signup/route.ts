@@ -70,6 +70,7 @@ export async function POST(request: NextRequest) {
       success: true,
       user: {
         _id: updatedUser._id,
+        name: updatedUser.name ?? null,
         instagram: updatedUser.instagram,
       },
     });

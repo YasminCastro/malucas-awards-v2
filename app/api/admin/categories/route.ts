@@ -15,7 +15,14 @@ export async function GET() {
     }
 
     const categories = await getCategories();
-    return NextResponse.json({ categories });
+    return NextResponse.json(
+      { categories },
+      {
+        headers: {
+          "Cache-Control": "no-store, max-age=0",
+        },
+      }
+    );
   } catch (error: any) {
     console.error("Erro ao buscar categorias:", error);
     return NextResponse.json(

@@ -89,7 +89,7 @@ export default function AdminCategoriesPage() {
 
   const loadUsers = async () => {
     try {
-      const response = await fetch("/api/admin/users");
+      const response = await fetch("/api/admin/users", { cache: "no-store" });
       if (response.ok) {
         const data = await response.json();
         setUsers(data.users || []);
@@ -101,7 +101,9 @@ export default function AdminCategoriesPage() {
 
   const checkAdminAndLoadCategories = async () => {
     try {
-      const response = await fetch("/api/admin/categories");
+      const response = await fetch("/api/admin/categories", {
+        cache: "no-store",
+      });
       if (response.status === 401 || response.status === 403) {
         router.push("/");
         return;
@@ -122,7 +124,9 @@ export default function AdminCategoriesPage() {
 
   const loadCategories = async () => {
     try {
-      const response = await fetch("/api/admin/categories");
+      const response = await fetch("/api/admin/categories", {
+        cache: "no-store",
+      });
       if (!response.ok) throw new Error("Erro ao carregar categorias");
       const data = await response.json();
       setCategories(data.categories);
@@ -162,8 +166,9 @@ export default function AdminCategoriesPage() {
     if (!editingCategory) return;
 
     try {
+      const editingId = editingCategory._id;
       const response = await fetch(
-        `/api/admin/categories/${editingCategory._id}`,
+        `/api/admin/categories/${editingId}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -178,6 +183,20 @@ export default function AdminCategoriesPage() {
         const data = await response.json();
         throw new Error(data.error || "Erro ao atualizar categoria");
       }
+
+      // Atualização otimista para refletir imediatamente no front
+      setCategories((prev) =>
+        prev.map((c) =>
+          c._id === editingId
+            ? {
+              ...c,
+              name: formData.name,
+              participants: formData.participants,
+              updatedAt: new Date().toISOString(),
+            }
+            : c
+        )
+      );
 
       await loadCategories();
       setEditingCategory(null);
@@ -201,6 +220,12 @@ export default function AdminCategoriesPage() {
       if (!response.ok) {
         const data = await response.json();
         throw new Error(data.error || "Erro ao deletar categoria");
+      }
+
+      // Atualização otimista para refletir imediatamente no front
+      setCategories((prev) => prev.filter((c) => c._id !== _id));
+      if (editingCategory?._id === _id) {
+        cancelEdit();
       }
 
       await loadCategories();

@@ -55,7 +55,6 @@ interface Participant {
 
 interface Category {
   _id: string;
-  id: string;
   name: string;
   participants: Participant[];
   createdAt: string;
@@ -189,13 +188,13 @@ export default function AdminCategoriesPage() {
     }
   };
 
-  const handleDeleteCategory = async (id: string) => {
+  const handleDeleteCategory = async (_id: string) => {
     if (!confirm("Tem certeza que deseja deletar esta categoria?")) {
       return;
     }
 
     try {
-      const response = await fetch(`/api/admin/categories/${id}`, {
+      const response = await fetch(`/api/admin/categories/${_id}`, {
         method: "DELETE",
       });
 

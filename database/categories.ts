@@ -9,7 +9,6 @@ export interface Participant {
 
 export interface Category {
     _id?: string;
-    id: string;
     name: string;
     participants: Participant[];
     createdAt: Date;
@@ -69,11 +68,7 @@ export async function createCategory(
 ): Promise<Category> {
     const collection = await getCategoriesCollection();
 
-    // Gerar um ID único baseado no timestamp
-    const id = Date.now().toString();
-
     const newCategory: Omit<Category, "_id"> = {
-        id,
         name,
         participants,
         createdAt: new Date(),

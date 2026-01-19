@@ -22,7 +22,7 @@ export async function saveVotes(
     userId: string,
     userInstagram: string,
     votes: Record<string, string>,
-    categories: { id: string; name: string }[]
+    categories: { _id: string; name: string }[]
 ): Promise<Vote[]> {
     const collection = await getVotesCollection();
 
@@ -32,7 +32,7 @@ export async function saveVotes(
     // Criar novos votos
     const votesToInsert: Omit<Vote, "_id">[] = [];
     for (const [categoryId, participantInstagram] of Object.entries(votes)) {
-        const category = categories.find((cat) => cat.id === categoryId);
+        const category = categories.find((cat) => cat._id === categoryId);
         if (category) {
             votesToInsert.push({
                 userId,
@@ -67,13 +67,16 @@ export async function getVotesByUser(userId: string): Promise<Vote[]> {
 }
 
 // Buscar votos por categoria
-export async function getVotesByCategory(categoryId: string): Promise<Vote[]> {
+export async function getVotesByCategory(categoryId: string | string[]): Promise<Vote[]> {
     const collection = await getVotesCollection();
+    if (Array.isArray(categoryId)) {
+        return collection.find({ categoryId: { $in: categoryId } }).toArray();
+    }
     return collection.find({ categoryId }).toArray();
 }
 
 // Calcular resultados de uma categoria (contagem de votos)
-export async function getCategoryResults(categoryId: string): Promise<
+export async function getCategoryResults(categoryId: string | string[]): Promise<
     Array<{
         participantInstagram: string;
         votes: number;

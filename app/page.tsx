@@ -19,7 +19,7 @@ export default async function Home() {
 
   // Converter para o formato esperado pelos componentes
   const formattedCategories = categories.map((category) => ({
-    id: category.id,
+    _id: String((category as any)._id),
     name: category.name,
     participants: category.participants.map((p) => ({
       instagram: p.instagram,

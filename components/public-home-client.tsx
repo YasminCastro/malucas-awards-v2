@@ -19,7 +19,7 @@ interface Participant {
 }
 
 interface Category {
-  id: string;
+  _id: string;
   name: string;
   participants: Participant[];
 }
@@ -151,7 +151,7 @@ export function PublicHomeClient({ categories, votingStatus, eventDate }: Public
               </div>
             ) : (
               categoryResults.map((categoryResult) => {
-                const category = categories.find(c => c.id === categoryResult.categoryId);
+                const category = categories.find(c => c._id === categoryResult.categoryId);
                 if (!category) return null;
 
                 return (
@@ -234,13 +234,13 @@ export function PublicHomeClient({ categories, votingStatus, eventDate }: Public
           <div className="space-y-4">
             {categories.map((category) => (
               <Accordion
-                key={category.id}
+                key={category._id}
                 type="single"
                 collapsible
                 className="w-full"
               >
                 <AccordionItem
-                  value={category.id}
+                  value={category._id}
                   className="bg-white border-4! border-black rounded-lg px-6 border-b-0"
                 >
                   <AccordionTrigger className="py-4 hover:no-underline [&>svg]:text-black">

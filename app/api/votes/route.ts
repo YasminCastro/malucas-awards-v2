@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     // Buscar categorias para obter os nomes
     const categories = await getCategories();
     const categoriesMap = categories.map((cat) => ({
-      id: cat.id,
+      _id: String((cat as any)._id),
       name: cat.name,
     }));
 

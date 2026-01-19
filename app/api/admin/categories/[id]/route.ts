@@ -9,7 +9,7 @@ import {
 // GET - Buscar categoria por ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const isAdmin = await isCurrentUserAdmin();
@@ -17,7 +17,8 @@ export async function GET(
       return NextResponse.json({ error: "Não autorizado" }, { status: 403 });
     }
 
-    const category = await getCategoryById(params.id);
+    const { id } = await params;
+    const category = await getCategoryById(id);
     if (!category) {
       return NextResponse.json(
         { error: "Categoria não encontrada" },
@@ -38,7 +39,7 @@ export async function GET(
 // PUT - Atualizar categoria
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const isAdmin = await isCurrentUserAdmin();
@@ -70,7 +71,8 @@ export async function PUT(
       updates.participants = participants;
     }
 
-    const category = await updateCategory(params.id, updates);
+    const { id } = await params;
+    const category = await updateCategory(id, updates);
     return NextResponse.json({ category });
   } catch (error: any) {
     console.error("Erro ao atualizar categoria:", error);
@@ -84,7 +86,7 @@ export async function PUT(
 // DELETE - Deletar categoria
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const isAdmin = await isCurrentUserAdmin();
@@ -92,7 +94,8 @@ export async function DELETE(
       return NextResponse.json({ error: "Não autorizado" }, { status: 403 });
     }
 
-    const deleted = await deleteCategory(params.id);
+    const { id } = await params;
+    const deleted = await deleteCategory(id);
     if (!deleted) {
       return NextResponse.json(
         { error: "Categoria não encontrada" },

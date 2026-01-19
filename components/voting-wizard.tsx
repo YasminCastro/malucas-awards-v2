@@ -11,7 +11,7 @@ interface Participant {
 }
 
 interface Category {
-  id: string;
+  _id: string;
   name: string;
   participants: Participant[];
 }
@@ -40,7 +40,7 @@ export function VotingWizard({
   const handleSelectParticipant = (participantInstagram: string) => {
     setVotes({
       ...votes,
-      [currentCategory.id]: participantInstagram,
+      [currentCategory._id]: participantInstagram,
     });
   };
 
@@ -60,7 +60,7 @@ export function VotingWizard({
     onComplete(votes);
   };
 
-  const selectedParticipant = votes[currentCategory.id];
+  const selectedParticipant = votes[currentCategory._id];
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">

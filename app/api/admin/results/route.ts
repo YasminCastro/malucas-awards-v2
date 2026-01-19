@@ -16,9 +16,13 @@ export async function GET() {
     // Calcular resultados para cada categoria
     const results = await Promise.all(
       categories.map(async (category) => {
-        const categoryResults = await getCategoryResults(category.id);
+        const categoryId = String((category as any)._id);
+        const legacyId = (category as any).id ? String((category as any).id) : null;
+        const idsToQuery =
+          legacyId && legacyId !== categoryId ? [categoryId, legacyId] : categoryId;
+        const categoryResults = await getCategoryResults(idsToQuery);
         return {
-          categoryId: category.id,
+          categoryId,
           categoryName: category.name,
           results: categoryResults.slice(0, 3), // Top 3
           totalVotes: categoryResults.reduce((sum, r) => sum + r.votes, 0),

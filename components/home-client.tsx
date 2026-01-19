@@ -21,7 +21,7 @@ interface Participant {
 }
 
 interface Category {
-  id: string;
+  _id: string;
   name: string;
   participants: Participant[];
 }
@@ -232,7 +232,7 @@ export function HomeClient({ categories, user, votingStatus, eventDate }: HomeCl
               </div>
             ) : (
               categoryResults.map((categoryResult) => {
-                const category = categories.find(c => c.id === categoryResult.categoryId);
+                const category = categories.find(c => c._id === categoryResult.categoryId);
                 if (!category) return null;
 
                 return (
@@ -314,18 +314,18 @@ export function HomeClient({ categories, user, votingStatus, eventDate }: HomeCl
         ) : canViewCategories ? (
           <div className="space-y-4">
             {categories.map((category) => {
-              const votedParticipant = userVotes[category.id];
-              const categoryResult = categoryResults.find(cr => cr.categoryId === category.id);
+              const votedParticipant = userVotes[category._id];
+              const categoryResult = categoryResults.find(cr => cr.categoryId === category._id);
               
               return (
                 <Accordion
-                  key={category.id}
+                  key={category._id}
                   type="single"
                   collapsible
                   className="w-full"
                 >
                   <AccordionItem
-                    value={category.id}
+                    value={category._id}
                     className="bg-white border-4! border-black rounded-lg px-6 border-b-0"
                   >
                     <AccordionTrigger className="py-4 hover:no-underline [&>svg]:text-black">
@@ -414,10 +414,10 @@ export function HomeClient({ categories, user, votingStatus, eventDate }: HomeCl
         {/* Category Vote Editor Modal */}
         {editingCategory && canVote && (
           <CategoryVoteEditor
-            categoryId={editingCategory.id}
+            categoryId={editingCategory._id}
             categoryName={editingCategory.name}
             participants={editingCategory.participants}
-            currentVote={userVotes[editingCategory.id]}
+            currentVote={userVotes[editingCategory._id]}
             onClose={() => setEditingCategory(null)}
             onSave={handleSaveVote}
           />

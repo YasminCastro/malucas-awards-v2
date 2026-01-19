@@ -68,6 +68,8 @@ export default function AdminCategoriesPage() {
   const [error, setError] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -208,10 +210,6 @@ export default function AdminCategoriesPage() {
   };
 
   const handleDeleteCategory = async (_id: string) => {
-    if (!confirm("Tem certeza que deseja deletar esta categoria?")) {
-      return;
-    }
-
     try {
       const response = await fetch(`/api/admin/categories/${_id}`, {
         method: "DELETE",
@@ -233,6 +231,17 @@ export default function AdminCategoriesPage() {
     } catch (error: any) {
       setError(error.message);
     }
+  };
+
+  const openDeleteAlert = (category: Category) => {
+    setCategoryToDelete(category);
+    setIsDeleteAlertOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!categoryToDelete) return;
+    await handleDeleteCategory(categoryToDelete._id);
+    setCategoryToDelete(null);
   };
 
   const startEdit = (category: Category) => {
@@ -335,6 +344,24 @@ export default function AdminCategoriesPage() {
       <div className="max-w-6xl mx-auto">
         <AdminHeader title="Gerenciamento de Categorias" description="Gerencie todas as categorias de premiação" />
 
+
+        {/* Delete Confirmation */}
+        <Alert
+          title="Deletar categoria"
+          description={
+            categoryToDelete
+              ? `Tem certeza que deseja deletar a categoria "${categoryToDelete.name}"?\nEssa ação não pode ser desfeita.`
+              : "Tem certeza que deseja deletar esta categoria?\nEssa ação não pode ser desfeita."
+          }
+          open={isDeleteAlertOpen}
+          onOpenChange={(open) => {
+            setIsDeleteAlertOpen(open);
+            if (!open) setCategoryToDelete(null);
+          }}
+          confirmText="Deletar"
+          cancelText="Cancelar"
+          onConfirm={confirmDelete}
+        />
 
         {/* Error Message */}
         {error && (
@@ -523,7 +550,7 @@ export default function AdminCategoriesPage() {
                     <Button
                       variant="destructive"
                       size="sm"
-                      onClick={() => handleDeleteCategory(category._id)}
+                      onClick={() => openDeleteAlert(category)}
                     >
                       Deletar
                     </Button>

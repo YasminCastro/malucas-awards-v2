@@ -14,7 +14,7 @@ export async function GET() {
       return NextResponse.json({ error: "Não autorizado" }, { status: 403 });
     }
 
-    const categories = await getCategories();
+    const categories = await getCategories({ bypassCache: true });
     return NextResponse.json(
       { categories },
       {
@@ -61,6 +61,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ category }, { status: 201 });
   } catch (error: any) {
     console.error("Erro ao criar categoria:", error);
+    // Duplicidade de índice unique (Mongo)
+    const msg = String(error?.message || "");
+    if (error?.code === 11000 || msg.includes("E11000 duplicate key")) {
+      return NextResponse.json(
+        { error: "Já existe uma categoria com esse nome" },
+        { status: 409 }
+      );
+    }
     return NextResponse.json(
       { error: error.message || "Erro ao criar categoria" },
       { status: 500 }

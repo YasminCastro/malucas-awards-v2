@@ -15,30 +15,46 @@ export interface Category {
     updatedAt?: Date;
 }
 
-// Obter coleção de categorias
+let indexesEnsured = false;
+
 async function getCategoriesCollection(): Promise<Collection<Category>> {
     const { db } = await connectToDatabase();
-    return db.collection<Category>("categories");
+    const collection = db.collection<Category>("categories");
+
+    if (!indexesEnsured) {
+        await collection.createIndex(
+            { name: 1 },
+            {
+                unique: true,
+                collation: { locale: "pt", strength: 2 },
+            }
+        );
+        indexesEnsured = true;
+    }
+
+    return collection;
 }
 
-// Buscar todas as categorias
-export async function getCategories(): Promise<Category[]> {
-    // Verificar cache
-    const cached = cache.get<Category[]>(CacheKeys.CATEGORIES);
-    if (cached) {
-        return cached;
+export async function getCategories(options?: { bypassCache?: boolean }): Promise<Category[]> {
+    const bypassCache = options?.bypassCache === true;
+
+    if (!bypassCache) {
+        const cached = cache.get<Category[]>(CacheKeys.CATEGORIES);
+        if (cached) {
+            return cached;
+        }
     }
 
     const collection = await getCategoriesCollection();
     const categories = await collection.find({}).sort({ createdAt: 1 }).toArray();
 
-    // Armazenar no cache por 2 minutos
-    cache.set(CacheKeys.CATEGORIES, categories, 2 * 60 * 1000);
+    if (!bypassCache) {
+        cache.set(CacheKeys.CATEGORIES, categories, 2 * 60 * 1000);
+    }
 
     return categories;
 }
 
-// Buscar categoria por ID
 export async function getCategoryById(id: string): Promise<Category | null> {
     const collection = await getCategoriesCollection();
     const { ObjectId } = await import("mongodb");
@@ -52,7 +68,6 @@ export async function getCategoryById(id: string): Promise<Category | null> {
     return category || null;
 }
 
-// Buscar categoria por id (campo id, não _id)
 export async function getCategoryByCustomId(
     id: string
 ): Promise<Category | null> {
@@ -61,7 +76,6 @@ export async function getCategoryByCustomId(
     return category || null;
 }
 
-// Criar nova categoria
 export async function createCategory(
     name: string,
     participants: Participant[] = []
@@ -83,7 +97,6 @@ export async function createCategory(
     return insertedCategory as Category;
 }
 
-// Atualizar categoria
 export async function updateCategory(
     id: string,
     updates: Partial<Pick<Category, "name" | "participants">>

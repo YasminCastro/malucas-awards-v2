@@ -76,6 +76,14 @@ export async function PUT(
     return NextResponse.json({ category });
   } catch (error: any) {
     console.error("Erro ao atualizar categoria:", error);
+    // Duplicidade de índice unique (Mongo)
+    const msg = String(error?.message || "");
+    if (error?.code === 11000 || msg.includes("E11000 duplicate key")) {
+      return NextResponse.json(
+        { error: "Já existe uma categoria com esse nome" },
+        { status: 409 }
+      );
+    }
     return NextResponse.json(
       { error: error.message || "Erro ao atualizar categoria" },
       { status: 500 }

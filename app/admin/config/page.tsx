@@ -2,9 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import {
   Card,
   CardContent,
@@ -12,8 +10,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { LogoutButton } from "@/components/logout-button";
-import Image from "next/image";
+import { AdminHeader } from "@/components/admin-header";
+import { Spinner } from "@/components/ui/spinner";
 
 type VotingStatus =
   | "escolhendo-categorias"
@@ -35,9 +33,7 @@ export default function AdminConfigPage() {
   const [status, setStatus] = useState<VotingStatus>("escolhendo-categorias");
   const [eventDate, setEventDate] = useState<string>("");
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
     loadSettings();
@@ -61,41 +57,9 @@ export default function AdminConfigPage() {
       }
     } catch (error: any) {
       console.error("Erro ao carregar configurações:", error);
+      setError("Erro ao carregar configurações");
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleSave = async () => {
-    setSaving(true);
-    setError(null);
-    setSuccess(false);
-
-    try {
-      const response = await fetch("/api/admin/settings", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ status, eventDate: eventDate || null }),
-      });
-
-      if (response.status === 401 || response.status === 403) {
-        router.push("/");
-        return;
-      }
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || "Erro ao salvar configurações");
-      }
-
-      setSuccess(true);
-      setTimeout(() => setSuccess(false), 3000);
-    } catch (error: any) {
-      setError(error.message);
-    } finally {
-      setSaving(false);
     }
   };
 
@@ -103,44 +67,13 @@ export default function AdminConfigPage() {
     <div className="min-h-screen bg-linear-to-br from-[#f93fff] to-[#f7f908] p-4 pb-8">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="bg-white border-4 border-black rounded-lg p-6 mb-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="relative w-20 h-20 shrink-0">
-                <Image
-                  src="/logo.png"
-                  alt="Malucas Awards Logo"
-                  fill
-                  className="object-contain"
-                  priority
-                />
-              </div>
-              <div>
-                <h1 className="text-4xl font-bold text-black uppercase tracking-tight">
-                  Configurações
-                </h1>
-                <p className="text-black text-sm mt-1">
-                  Gerencie as configurações do sistema
-                </p>
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                onClick={() => router.push("/admin")}
-                className="h-12 px-6"
-              >
-                Voltar
-              </Button>
-              <LogoutButton />
-            </div>
-          </div>
-        </div>
+        <AdminHeader title="Configurações" description="Visualize as configurações do sistema" />
+
 
         {loading ? (
           <Card className="border-4 border-black">
             <CardContent className="p-6">
-              <p className="text-center">Carregando...</p>
+              <Spinner className="size-8" />
             </CardContent>
           </Card>
         ) : (
@@ -148,35 +81,25 @@ export default function AdminConfigPage() {
             <CardHeader>
               <CardTitle>Status do Sistema</CardTitle>
               <CardDescription>
-                Configure o status atual do processo de votação
+                Visualize o status atual do processo de votação
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="status">Status</Label>
-                <select
-                  id="status"
-                  value={status}
-                  onChange={(e) => setStatus(e.target.value as VotingStatus)}
-                  className="w-full px-3 py-2 border-2 border-black rounded-md bg-white text-black focus:outline-none focus:ring-2 focus:ring-[#f93fff] focus:border-transparent"
-                >
-                  {statusOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
+                <Label htmlFor="status">Status Atual</Label>
+                <div className="w-full px-3 py-2 border-2 border-black rounded-md bg-gray-50 text-black">
+                  {statusOptions.find((opt) => opt.value === status)?.label || status}
+                </div>
+                <p className="text-sm text-gray-600">
+                  Para alterar as configurações, edite o arquivo database/settings.json
+                </p>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="eventDate">Data do Evento</Label>
-                <Input
-                  id="eventDate"
-                  type="date"
-                  value={eventDate}
-                  onChange={(e) => setEventDate(e.target.value)}
-                  className="w-full px-3 py-2 border-2 border-black rounded-md bg-white text-black focus:outline-none focus:ring-2 focus:ring-[#f93fff] focus:border-transparent"
-                />
+                <div className="w-full px-3 py-2 border-2 border-black rounded-md bg-gray-50 text-black">
+                  {eventDate || "Não definida"}
+                </div>
                 <p className="text-sm text-gray-600">
                   Data em que os resultados serão divulgados
                 </p>
@@ -187,22 +110,6 @@ export default function AdminConfigPage() {
                   {error}
                 </div>
               )}
-
-              {success && (
-                <div className="p-3 bg-green-100 border-2 border-green-500 rounded-md text-green-700">
-                  Configurações salvas com sucesso!
-                </div>
-              )}
-
-              <div className="flex gap-2">
-                <Button
-                  onClick={handleSave}
-                  disabled={saving}
-                  className="flex-1"
-                >
-                  {saving ? "Salvando..." : "Salvar Configurações"}
-                </Button>
-              </div>
             </CardContent>
           </Card>
         )}

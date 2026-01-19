@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Card,
   CardContent,
@@ -10,8 +12,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { LogoutButton } from "@/components/logout-button";
-import Image from "next/image";
 import { Spinner } from "@/components/ui/spinner";
 import { AdminHeader } from "@/components/admin-header";
 import { Alert } from "@/components/alert";
@@ -32,6 +32,17 @@ export default function AdminCategorySuggestionsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [updating, setUpdating] = useState<string | null>(null);
+  const [editingSuggestion, setEditingSuggestion] = useState<CategorySuggestion | null>(null);
+  const [editForm, setEditForm] = useState({
+    suggesterName: "",
+    categoryName: "",
+    participantsText: "",
+    observations: "",
+  });
+  const [savingEdit, setSavingEdit] = useState(false);
+  const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
+  const [suggestionToDelete, setSuggestionToDelete] = useState<CategorySuggestion | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     loadSuggestions();
@@ -39,7 +50,7 @@ export default function AdminCategorySuggestionsPage() {
 
   const loadSuggestions = async () => {
     try {
-      const response = await fetch("/api/admin/category-suggestions");
+      const response = await fetch("/api/admin/category-suggestions", { cache: "no-store" });
       if (response.status === 401 || response.status === 403) {
         router.push("/");
         return;
@@ -55,6 +66,14 @@ export default function AdminCategorySuggestionsPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const parseParticipants = (text: string) => {
+    const parts = text
+      .split(/[\n,]+/g)
+      .map((p) => p.trim())
+      .filter(Boolean);
+    return Array.from(new Set(parts));
   };
 
   const updateStatus = async (id: string, status: "pending" | "approved" | "rejected") => {
@@ -78,6 +97,106 @@ export default function AdminCategorySuggestionsPage() {
       setError(error.message);
     } finally {
       setUpdating(null);
+    }
+  };
+
+  const startEdit = (suggestion: CategorySuggestion) => {
+    setEditingSuggestion(suggestion);
+    setEditForm({
+      suggesterName: suggestion.suggesterName || "",
+      categoryName: suggestion.categoryName || "",
+      participantsText: (suggestion.participants || []).join("\n"),
+      observations: suggestion.observations || "",
+    });
+  };
+
+  const cancelEdit = () => {
+    setEditingSuggestion(null);
+    setEditForm({
+      suggesterName: "",
+      categoryName: "",
+      participantsText: "",
+      observations: "",
+    });
+    setError(null);
+  };
+
+  const saveEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingSuggestion) return;
+
+    setSavingEdit(true);
+    try {
+      const participants = parseParticipants(editForm.participantsText);
+      const response = await fetch(`/api/admin/category-suggestions/${editingSuggestion.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          suggesterName: editForm.suggesterName,
+          categoryName: editForm.categoryName,
+          participants,
+          observations: editForm.observations,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Erro ao editar sugestão");
+      }
+
+      // Atualização otimista
+      setSuggestions((prev) =>
+        prev.map((s) =>
+          s.id === editingSuggestion.id
+            ? {
+                ...s,
+                suggesterName: editForm.suggesterName,
+                categoryName: editForm.categoryName,
+                participants,
+                observations: editForm.observations || undefined,
+              }
+            : s
+        )
+      );
+
+      await loadSuggestions();
+      setEditingSuggestion(null);
+      setError(null);
+    } catch (error: any) {
+      setError(error.message);
+    } finally {
+      setSavingEdit(false);
+    }
+  };
+
+  const openDeleteAlert = (suggestion: CategorySuggestion) => {
+    setSuggestionToDelete(suggestion);
+    setIsDeleteAlertOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!suggestionToDelete) return;
+    setDeleting(true);
+    try {
+      const response = await fetch(`/api/admin/category-suggestions/${suggestionToDelete.id}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Erro ao deletar sugestão");
+      }
+
+      setSuggestions((prev) => prev.filter((s) => s.id !== suggestionToDelete.id));
+      if (editingSuggestion?.id === suggestionToDelete.id) {
+        cancelEdit();
+      }
+      await loadSuggestions();
+      setError(null);
+    } catch (error: any) {
+      setError(error.message);
+    } finally {
+      setDeleting(false);
+      setSuggestionToDelete(null);
     }
   };
 
@@ -117,6 +236,24 @@ export default function AdminCategorySuggestionsPage() {
         {/* Header */}
         <AdminHeader title="Sugestões de Categorias" description="Gerencie as sugestões de categorias enviadas" />
 
+        {/* Delete Confirmation */}
+        <Alert
+          title="Excluir sugestão"
+          description={
+            suggestionToDelete
+              ? `Tem certeza que deseja excluir a sugestão "${suggestionToDelete.categoryName}"?\nEssa ação não pode ser desfeita.`
+              : "Tem certeza que deseja excluir esta sugestão?\nEssa ação não pode ser desfeita."
+          }
+          open={isDeleteAlertOpen}
+          onOpenChange={(open) => {
+            setIsDeleteAlertOpen(open);
+            if (!open) setSuggestionToDelete(null);
+          }}
+          confirmText={deleting ? "Excluindo..." : "Excluir"}
+          cancelText="Cancelar"
+          onConfirm={confirmDelete}
+        />
+
         {error && (
           <Alert
             title={`Erro ao carregar sugestões`}
@@ -124,6 +261,72 @@ export default function AdminCategorySuggestionsPage() {
             open={!!error}
             onOpenChange={() => setError(null)}
           />
+        )}
+
+        {/* Edit Form */}
+        {editingSuggestion && (
+          <Card className="mb-6 border-4 border-black">
+            <CardHeader>
+              <CardTitle>Editar sugestão</CardTitle>
+              <CardDescription>
+                Atualize os dados da sugestão e salve para aplicar.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={saveEdit} className="space-y-4">
+                <div>
+                  <Label htmlFor="suggesterName">Sugerido por</Label>
+                  <Input
+                    id="suggesterName"
+                    value={editForm.suggesterName}
+                    onChange={(e) => setEditForm((p) => ({ ...p, suggesterName: e.target.value }))}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="categoryName">Nome da categoria</Label>
+                  <Input
+                    id="categoryName"
+                    value={editForm.categoryName}
+                    onChange={(e) => setEditForm((p) => ({ ...p, categoryName: e.target.value }))}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="participants">Participantes (um por linha ou separados por vírgula)</Label>
+                  <textarea
+                    id="participants"
+                    value={editForm.participantsText}
+                    onChange={(e) => setEditForm((p) => ({ ...p, participantsText: e.target.value }))}
+                    className="w-full min-h-[120px] rounded-md border border-black bg-white px-3 py-2 text-sm"
+                    placeholder="@usuario1\n@usuario2"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="observations">Observações</Label>
+                  <textarea
+                    id="observations"
+                    value={editForm.observations}
+                    onChange={(e) => setEditForm((p) => ({ ...p, observations: e.target.value }))}
+                    className="w-full min-h-[100px] rounded-md border border-black bg-white px-3 py-2 text-sm"
+                    placeholder="Observações..."
+                  />
+                </div>
+
+                <div className="flex gap-2">
+                  <Button type="submit" disabled={savingEdit}>
+                    {savingEdit ? "Salvando..." : "Salvar"}
+                  </Button>
+                  <Button type="button" variant="outline" onClick={cancelEdit} disabled={savingEdit}>
+                    Cancelar
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
         )}
 
         {/* Lista de Sugestões */}
@@ -214,6 +417,23 @@ export default function AdminCategorySuggestionsPage() {
                             {updating === suggestion.id ? "Atualizando..." : "Marcar como Pendente"}
                           </Button>
                         )}
+
+                        <div className="ml-auto flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => startEdit(suggestion)}
+                          >
+                            Editar
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => openDeleteAlert(suggestion)}
+                          >
+                            Excluir
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </div>

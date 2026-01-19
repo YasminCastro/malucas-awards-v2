@@ -47,8 +47,8 @@ export default function AdminPage() {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           <AdminCard title="Gerenciamento de Usuários" description="Crie, edite e gerencie usuários do sistema" path="/admin/users" />
           <AdminCard title="Gerenciamento de Categorias" description="Crie, edite e gerencie categorias de premiação" path="/admin/categories" />
-          <AdminCard title="Resultados" description="Visualize resultados e votos dos usuários" path="/admin/result" />
           <AdminCard title="Sugestões de Categorias" description="Gerencie as sugestões de categorias enviadas pelos usuários" path="/admin/category-suggestions" />
+          <AdminCard title="Resultados" description="Visualize resultados e votos dos usuários" path="/admin/result" />
           <AdminCard title="Configurações" description="Configure o status e outras opções do sistema" path="/admin/config" />
         </div>
       </div>

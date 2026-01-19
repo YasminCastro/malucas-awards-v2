@@ -10,7 +10,8 @@ export async function GET() {
       return NextResponse.json({ error: "Não autorizado" }, { status: 403 });
     }
 
-    const suggestions = await getCategorySuggestions();
+    // Admin precisa sempre do dado atualizado (evitar cache em memória)
+    const suggestions = await getCategorySuggestions({ bypassCache: true });
     
     return NextResponse.json(
       { 
@@ -25,7 +26,12 @@ export async function GET() {
           createdAt: suggestion.createdAt,
         }))
       },
-      { status: 200 }
+      {
+        status: 200,
+        headers: {
+          "Cache-Control": "no-store, max-age=0",
+        },
+      }
     );
   } catch (error: any) {
     console.error("Erro ao buscar sugestões de categoria:", error);

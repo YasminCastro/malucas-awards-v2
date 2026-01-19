@@ -52,11 +52,14 @@ export async function createCategorySuggestion(
 }
 
 // Buscar todas as sugestões (para admin)
-export async function getCategorySuggestions(): Promise<CategorySuggestion[]> {
-  // Verificar cache
-  const cached = cache.get<CategorySuggestion[]>(CacheKeys.CATEGORY_SUGGESTIONS);
-  if (cached) {
-    return cached;
+export async function getCategorySuggestions(options?: { bypassCache?: boolean }): Promise<CategorySuggestion[]> {
+  const bypassCache = options?.bypassCache === true;
+
+  if (!bypassCache) {
+    const cached = cache.get<CategorySuggestion[]>(CacheKeys.CATEGORY_SUGGESTIONS);
+    if (cached) {
+      return cached;
+    }
   }
 
   const collection = await getCategorySuggestionsCollection();
@@ -65,8 +68,10 @@ export async function getCategorySuggestions(): Promise<CategorySuggestion[]> {
     .sort({ createdAt: -1 })
     .toArray();
 
-  // Armazenar no cache por 1 minuto
-  cache.set(CacheKeys.CATEGORY_SUGGESTIONS, suggestions, 60 * 1000);
+  if (!bypassCache) {
+    // Armazenar no cache por 1 minuto
+    cache.set(CacheKeys.CATEGORY_SUGGESTIONS, suggestions, 60 * 1000);
+  }
 
   return suggestions;
 }
@@ -165,4 +170,75 @@ export async function updateCategorySuggestionStatus(
   cache.delete(CacheKeys.CATEGORY_SUGGESTIONS);
 
   return updatedSuggestion;
+}
+
+// Atualizar dados da sugestão (admin)
+export async function updateCategorySuggestion(
+  id: string,
+  updates: Partial<
+    Pick<
+      CategorySuggestion,
+      "suggesterName" | "categoryName" | "participants" | "observations" | "status"
+    >
+  >
+): Promise<CategorySuggestion> {
+  const collection = await getCategorySuggestionsCollection();
+  const { ObjectId } = await import("mongodb");
+
+  let query: any;
+  try {
+    query = { _id: new ObjectId(id) };
+  } catch {
+    query = { _id: id };
+  }
+
+  const updateData: any = {};
+  if (updates.suggesterName !== undefined) {
+    updateData.suggesterName = updates.suggesterName.trim();
+  }
+  if (updates.categoryName !== undefined) {
+    updateData.categoryName = updates.categoryName.trim();
+  }
+  if (updates.participants !== undefined) {
+    updateData.participants = updates.participants;
+  }
+  if (updates.observations !== undefined) {
+    const obs = updates.observations?.trim();
+    updateData.observations = obs ? obs : undefined;
+  }
+  if (updates.status !== undefined) {
+    updateData.status = updates.status;
+  }
+
+  const result = await collection.updateOne(query, { $set: updateData });
+  if (result.matchedCount === 0) {
+    throw new Error("Sugestão não encontrada");
+  }
+
+  const updated = await getCategorySuggestionById(id);
+  if (!updated) {
+    throw new Error("Sugestão não encontrada após atualização");
+  }
+
+  cache.delete(CacheKeys.CATEGORY_SUGGESTIONS);
+  return updated;
+}
+
+// Deletar sugestão (admin)
+export async function deleteCategorySuggestion(id: string): Promise<boolean> {
+  const collection = await getCategorySuggestionsCollection();
+  const { ObjectId } = await import("mongodb");
+
+  let query: any;
+  try {
+    query = { _id: new ObjectId(id) };
+  } catch {
+    query = { _id: id };
+  }
+
+  const result = await collection.deleteOne(query);
+  if (result.deletedCount > 0) {
+    cache.delete(CacheKeys.CATEGORY_SUGGESTIONS);
+  }
+  return result.deletedCount > 0;
 }

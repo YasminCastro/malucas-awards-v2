@@ -8,12 +8,8 @@ export async function GET() {
     
     // Se não existir configurações, retornar status padrão
     const status = settings?.status || "escolhendo-categorias";
-    const rawEventDate: unknown = settings?.eventDate;
-    const eventDate = rawEventDate
-      ? rawEventDate instanceof Date
-        ? rawEventDate.toISOString().split("T")[0]
-        : String(rawEventDate)
-      : null;
+    const rawEventDate = settings?.eventDate;
+    const eventDate = rawEventDate ? rawEventDate.split("T")[0] : null;
 
     return NextResponse.json({ status, eventDate });
   } catch (error: any) {

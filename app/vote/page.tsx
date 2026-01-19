@@ -17,9 +17,7 @@ export default async function VotePage() {
   const settings = await getSettings();
   const votingStatus = settings?.status || "escolhendo-categorias";
   const eventDate = settings?.eventDate
-    ? settings.eventDate instanceof Date
-      ? settings.eventDate.toISOString().split("T")[0]
-      : settings.eventDate
+    ? settings.eventDate.split("T")[0]
     : null;
 
   // Converter para o formato esperado pelos componentes

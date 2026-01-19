@@ -1,8 +1,5 @@
 import { getCategories, getSettings } from "@/lib/db";
 import { PublicHomeClient } from "@/components/public-home-client";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import Image from "next/image";
 
 export default async function Home() {
   // Buscar categorias do banco de dados (público)
@@ -11,10 +8,8 @@ export default async function Home() {
   // Buscar status de votação
   const settings = await getSettings();
   const votingStatus = settings?.status || "escolhendo-categorias";
-  const eventDate = settings?.eventDate 
-    ? (settings.eventDate instanceof Date 
-        ? settings.eventDate.toISOString().split('T')[0] 
-        : settings.eventDate)
+  const eventDate = settings?.eventDate
+    ? settings.eventDate.split("T")[0]
     : null;
 
   // Converter para o formato esperado pelos componentes

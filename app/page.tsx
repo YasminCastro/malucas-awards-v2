@@ -1,6 +1,8 @@
 import { getCategories, getSettings } from "@/lib/db";
 import { PublicHomeClient } from "@/components/public-home-client";
 
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   // Buscar categorias do banco de dados (público)
   const categories = await getCategories();

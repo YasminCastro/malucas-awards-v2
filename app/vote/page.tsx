@@ -3,6 +3,8 @@ import { getCurrentUser } from "@/lib/auth";
 import { getCategories, getSettings } from "@/lib/db";
 import { HomeClient } from "@/components/home-client";
 
+export const dynamic = "force-dynamic";
+
 export default async function VotePage() {
   const user = await getCurrentUser();
 

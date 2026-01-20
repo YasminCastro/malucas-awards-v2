@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getUserByInstagram } from "@/lib/db";
+import { getSettings, getUserByInstagram } from "@/lib/db";
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,6 +25,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Bloquear criação de senha enquanto o projeto estiver escolhendo categorias (apenas não-admin)
+    const isAdmin = user.isAdmin || false;
+    if (!isAdmin) {
+      const settings = await getSettings();
+      const status = settings?.status || "escolhendo-categorias";
+
+      if (status === "escolhendo-categorias") {
+        return NextResponse.json(
+          {
+            error: "PASSWORD_CREATION_NOT_AVAILABLE",
+            message: "Ainda não é possível criar uma senha. Aguarde a liberação.",
+            status,
+          },
+          { status: 403 }
+        );
+      }
+    }
+
     if (user.hasSetPassword) {
       return NextResponse.json(
         { error: "Você já possui uma senha cadastrada. Faça login em /login" },
@@ -35,7 +53,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       instagram: user.instagram,
-      isAdmin: user.isAdmin || false,
+      isAdmin,
     });
   } catch (error) {
     console.error("Check user error:", error);

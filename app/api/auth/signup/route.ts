@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
 
     // Buscar usuário primeiro para verificar se é admin
     const existingUser = await getUserByInstagram(instagram);
-    
+
     if (!existingUser) {
       return NextResponse.json(
         {
@@ -20,15 +20,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verificar status de votação apenas se não for admin
+    // Verificar status do projeto apenas se não for admin
     const isAdmin = existingUser.isAdmin || false;
     if (!isAdmin) {
       const settings = await getSettings();
-      const votingStatus = settings?.status || "escolhendo-categorias";
-      
-      if (votingStatus === "pre-votacao") {
+      const status = settings?.status || "escolhendo-categorias";
+
+      if (status === "escolhendo-categorias") {
         return NextResponse.json(
-          { error: "A votação ainda não está aberta. Aguarde o anúncio oficial." },
+          {
+            error: "PASSWORD_CREATION_NOT_AVAILABLE",
+            message: "Ainda não é possível criar uma senha. Aguarde a liberação.",
+            status,
+          },
           { status: 403 }
         );
       }

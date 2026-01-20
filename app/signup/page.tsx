@@ -49,30 +49,14 @@ export default function SignupPage() {
         if (data.error === "USER_NOT_FOUND") {
           setErrorType("USER_NOT_FOUND");
           setError("");
+        } else if (data.error === "PASSWORD_CREATION_NOT_AVAILABLE") {
+          setErrorType("PASSWORD_CREATION_NOT_AVAILABLE");
+          setError("");
         } else {
           setError(data.error || data.message || "Erro ao verificar usuário");
         }
         setChecking(false);
         return;
-      }
-
-      // Verificar status de votação apenas se não for admin
-      const isAdmin = data.isAdmin || false;
-      if (!isAdmin) {
-        const statusResponse = await fetch("/api/settings/voting-status");
-        let votingStatus = "escolhendo-categorias";
-        if (statusResponse.ok) {
-          const statusData = await statusResponse.json();
-          votingStatus = statusData.status || "escolhendo-categorias";
-        }
-
-        // Se estiver em pré-votação e não for admin, bloquear
-        if (votingStatus === "pre-votacao") {
-          setErrorType("VOTING_NOT_OPEN");
-          setError("");
-          setChecking(false);
-          return;
-        }
       }
 
       setUserVerified(true);
@@ -173,13 +157,14 @@ export default function SignupPage() {
                   disabled={checking}
                 />
               </div>
-              {errorType === "VOTING_NOT_OPEN" && (
+              {errorType === "PASSWORD_CREATION_NOT_AVAILABLE" && (
                 <div className="text-black text-sm bg-yellow-50 border-2 border-yellow-600 rounded-md p-4 space-y-3">
                   <p className="font-medium text-yellow-800">
-                    A votação ainda não está aberta
+                    Ainda não é possível criar uma senha
                   </p>
                   <p className="text-sm">
-                    A votação irá abrir em breve! Aguarde o anúncio oficial.
+                    O Maluca Awards ainda está na fase de escolha de categorias.
+                    Aguarde a liberação para definir sua senha.
                   </p>
                   <div className="pt-2">
                     <Button
@@ -216,11 +201,13 @@ export default function SignupPage() {
                   </p>
                 </div>
               )}
-              {error && errorType !== "USER_NOT_FOUND" && errorType !== "VOTING_NOT_OPEN" && (
-                <div className="text-red-600 text-sm text-center bg-red-50 border-2 border-red-600 rounded-md p-3 font-medium">
-                  {error}
-                </div>
-              )}
+              {error &&
+                errorType !== "USER_NOT_FOUND" &&
+                errorType !== "PASSWORD_CREATION_NOT_AVAILABLE" && (
+                  <div className="text-red-600 text-sm text-center bg-red-50 border-2 border-red-600 rounded-md p-3 font-medium">
+                    {error}
+                  </div>
+                )}
               <Button
                 type="submit"
                 disabled={checking}

@@ -63,6 +63,15 @@ export function VotingWizard({
   };
 
   const selectedParticipant = votes[currentCategory._id];
+  const sortedParticipants = [...currentCategory.participants].sort(
+    (a, b) => {
+      const nameA = (a.name || a.instagram).toLowerCase();
+      const nameB = (b.name || b.instagram).toLowerCase();
+      if (nameA < nameB) return -1;
+      if (nameA > nameB) return 1;
+      return 0;
+    }
+  );
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -100,7 +109,7 @@ export function VotingWizard({
           </h3>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3">
-            {currentCategory.participants.map((participant, index) => {
+            {sortedParticipants.map((participant, index) => {
               const isSelected = selectedParticipant === participant.instagram;
               return (
                 <button

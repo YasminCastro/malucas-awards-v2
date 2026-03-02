@@ -81,11 +81,11 @@ export function CategoryVoteEditor({
                   key={index}
                   onClick={() => setSelectedParticipant(participant.instagram)}
                   className={`border-2 rounded-md overflow-hidden transition-all ${isSelected
-                      ? "border-green-500 bg-green-50 scale-105 shadow-lg"
-                      : "border-black hover:bg-gray-50"
+                    ? "border-green-500 bg-green-50 scale-105 shadow-lg"
+                    : "border-black hover:bg-gray-50"
                     }`}
                 >
-                  <div className="relative w-full aspect-square max-h-24 sm:max-h-28">
+                  <div className="relative w-full aspect-3/4">
                     <ParticipantImage
                       src={`/nominees/${participant.image}`}
                       alt={participant.name || participant.instagram}

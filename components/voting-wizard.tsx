@@ -111,7 +111,7 @@ export function VotingWizard({
                     : "border-black hover:bg-gray-50"
                     }`}
                 >
-                  <div className="relative w-full aspect-square max-h-24 sm:max-h-28">
+                  <div className="relative w-full aspect-3/4">
                     <ParticipantImage
                       src={`/nominees/${participant.image}`}
                       alt={participant.name || participant.instagram}

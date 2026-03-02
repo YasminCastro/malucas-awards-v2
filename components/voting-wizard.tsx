@@ -8,6 +8,7 @@ import { X } from "lucide-react";
 interface Participant {
   instagram: string;
   image: string;
+  name?: string | null;
 }
 
 interface Category {
@@ -104,32 +105,29 @@ export function VotingWizard({
                 <button
                   key={index}
                   onClick={() => handleSelectParticipant(participant.instagram)}
-                  className={`border-4 rounded-md overflow-hidden transition-all ${
-                    isSelected
+                  className={`border-4 rounded-md overflow-hidden transition-all ${isSelected
                       ? "border-green-500 bg-green-50 scale-105 shadow-lg"
                       : "border-black hover:bg-gray-50"
-                  }`}
+                    }`}
                 >
                   <div className="relative w-full aspect-square">
                     <Image
                       src={`/nominees/${participant.image}`}
-                      alt={participant.instagram}
+                      alt={participant.name || participant.instagram}
                       fill
                       className="object-cover"
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     />
                   </div>
                   <div
-                    className={`p-3 border-t-4 ${
-                      isSelected ? "border-green-500" : "border-black"
-                    }`}
+                    className={`p-3 border-t-4 ${isSelected ? "border-green-500" : "border-black"
+                      }`}
                   >
                     <p
-                      className={`font-medium text-center text-sm ${
-                        isSelected ? "font-bold text-green-700" : ""
-                      }`}
+                      className={`font-medium text-center text-sm ${isSelected ? "font-bold text-green-700" : ""
+                        }`}
                     >
-                      {participant.instagram}
+                      {participant.name || participant.instagram}
                     </p>
                   </div>
                 </button>

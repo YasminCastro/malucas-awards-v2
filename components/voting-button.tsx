@@ -7,6 +7,7 @@ import { VotingWizard } from "@/components/voting-wizard";
 interface Participant {
   instagram: string;
   image: string;
+  name?: string | null;
 }
 
 interface Category {

@@ -5,6 +5,7 @@ import { VotingButton } from "@/components/voting-button";
 interface Participant {
   instagram: string;
   image: string;
+  name?: string | null;
 }
 
 interface Category {

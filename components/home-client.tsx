@@ -18,6 +18,7 @@ import { Edit2 } from "lucide-react";
 interface Participant {
   instagram: string;
   image: string;
+  name?: string | null;
 }
 
 interface Category {
@@ -102,6 +103,18 @@ export function HomeClient({ categories, user, votingStatus, eventDate }: HomeCl
 
   const canVote = votingStatus === "votacao";
   const canViewCategories = ["pre-votacao", "votacao", "pos-votacao", "resultado"].includes(votingStatus);
+
+  const getDisplayName = (instagram: string) => {
+    for (const category of categories) {
+      const participant = category.participants.find(
+        (p) => p.instagram.toLowerCase() === instagram.toLowerCase()
+      );
+      if (participant) {
+        return participant.name || participant.instagram;
+      }
+    }
+    return instagram;
+  };
 
   const getUserImage = (instagram: string) => {
     // Tentar encontrar o participante nas categorias para pegar a imagem correta
@@ -288,7 +301,7 @@ export function HomeClient({ categories, user, votingStatus, eventDate }: HomeCl
                                     </div>
                                     <div className="text-center">
                                       <p className="font-bold text-lg">
-                                        {result.participantInstagram}
+                                        {getDisplayName(result.participantInstagram)}
                                       </p>
                                       <p className="text-sm mt-1">
                                         {result.votes} voto{result.votes !== 1 ? "s" : ""}
@@ -379,7 +392,7 @@ export function HomeClient({ categories, user, votingStatus, eventDate }: HomeCl
                                       : "text-black"
                                   }`}
                                 >
-                                  {participant.instagram}
+                                  {participant.name || participant.instagram}
                                   {isVoted && (
                                     <span className="block text-xs mt-1">
                                       ✓ Seu voto

@@ -8,6 +8,7 @@ import { ParticipantImage } from "@/components/participant-image";
 interface Participant {
   instagram: string;
   image: string;
+  name?: string | null;
 }
 
 interface CategoryVoteEditorProps {
@@ -88,7 +89,7 @@ export function CategoryVoteEditor({
                   <div className="relative w-full aspect-square">
                     <ParticipantImage
                       src={`/nominees/${participant.image}`}
-                      alt={participant.instagram}
+                      alt={participant.name || participant.instagram}
                       className="object-cover"
                     />
                   </div>
@@ -102,7 +103,7 @@ export function CategoryVoteEditor({
                         isSelected ? "font-bold text-green-700" : ""
                       }`}
                     >
-                      {participant.instagram}
+                      {participant.name || participant.instagram}
                     </p>
                   </div>
                 </button>

@@ -192,7 +192,7 @@ export function HomeClient({ categories, user, votingStatus, eventDate }: HomeCl
                   />
                 </div>
                 <div>
-                  <h1 className="text-4xl font-bold text-black uppercase tracking-tight">
+                  <h1 className="text-4xl font-bold text-black uppercase tracking-tight max-sm:text-2xl">
                     MALUCAS AWARDS 2026
                   </h1>
                   <p className="text-black text-sm mt-1">
@@ -341,7 +341,7 @@ export function HomeClient({ categories, user, votingStatus, eventDate }: HomeCl
                     className="bg-white border-4! border-black rounded-lg px-6 border-b-0"
                   >
                     <AccordionTrigger className="py-4 hover:no-underline [&>svg]:text-black">
-                      <h2 className="text-2xl font-bold text-black uppercase tracking-tight">
+                      <h2 className="text-2xl font-bold text-black uppercase tracking-tight max-sm:text-base">
                         {category.name}
                       </h2>
                     </AccordionTrigger>

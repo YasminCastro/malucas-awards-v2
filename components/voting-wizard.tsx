@@ -68,12 +68,12 @@ export function VotingWizard({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <div className="bg-white border-4 border-black rounded-lg w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="border-b-4 border-black p-6 flex items-center justify-between">
+        <div className="border-b-4 border-black p-6 flex items-center justify-between max-sm:p-4">
           <div>
-            <h2 className="text-3xl font-bold text-black uppercase tracking-tight">
+            <h2 className="text-3xl font-bold text-black tracking-tight max-sm:text-xl">
               VOTAÇÃO
             </h2>
-            <p className="text-black text-sm mt-1">
+            <p className="text-black text-sm mt-1 max-sm:text-xs">
               Categoria {currentStep + 1} de {categories.length}
             </p>
           </div>
@@ -95,7 +95,7 @@ export function VotingWizard({
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6">
-          <h3 className="text-2xl font-bold text-black uppercase tracking-tight mb-6">
+          <h3 className="text-2xl font-bold text-black uppercase tracking-tight mb-6 max-sm:text-lg">
             {currentCategory.name}
           </h3>
 
@@ -140,7 +140,7 @@ export function VotingWizard({
           <Button
             onClick={handlePrevious}
             disabled={isFirstStep}
-            className="bg-white border-2 border-black text-black hover:bg-gray-100 font-bold uppercase h-12 px-6 rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-white border-2 border-black text-black hover:bg-gray-100 font-bold h-12 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             ANTERIOR
           </Button>
@@ -149,7 +149,7 @@ export function VotingWizard({
             <Button
               onClick={handleComplete}
               disabled={!selectedParticipant}
-              className="bg-black hover:bg-gray-900 text-white font-bold uppercase h-12 px-8 rounded-md border-2 border-black disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-black font-bold h-12 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               FINALIZAR VOTAÇÃO
             </Button>
@@ -157,7 +157,7 @@ export function VotingWizard({
             <Button
               onClick={handleNext}
               disabled={!selectedParticipant}
-              className="bg-black hover:bg-gray-900 text-white font-bold uppercase h-12 px-8 rounded-md border-2 border-black disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-black font-bold h-12 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               PRÓXIMO
             </Button>

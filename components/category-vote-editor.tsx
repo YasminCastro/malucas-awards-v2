@@ -56,10 +56,10 @@ export function CategoryVoteEditor({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <div className="bg-white border-4 border-black rounded-lg w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="border-b-4 border-black p-6 flex items-center justify-between">
+        <div className="border-b-4 border-black p-6 flex items-center justify-between max-sm:p-4">
           <div>
-            <h2 className="text-3xl font-bold text-black uppercase tracking-tight">
-              Editar Voto
+            <h2 className="text-3xl font-bold text-black tracking-tight max-sm:text-xl">
+              EDITAR VOTO
             </h2>
             <p className="text-black text-sm mt-1">{categoryName}</p>
           </div>
@@ -110,20 +110,20 @@ export function CategoryVoteEditor({
         </div>
 
         {/* Footer */}
-        <div className="border-t-4 border-black p-6 flex items-center justify-end gap-4">
+        <div className="border-t-4 border-black p-4 flex items-center gap-4">
           <Button
             onClick={onClose}
             variant="outline"
-            className="bg-white border-2 border-black text-black hover:bg-gray-100 font-bold uppercase h-12 px-6 rounded-md"
+            className="bg-white border-2 border-black text-black hover:bg-gray-100 font-bold h-12 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Cancelar
+            CANCELAR
           </Button>
           <Button
             onClick={handleSave}
             disabled={!selectedParticipant || saving}
-            className="bg-black hover:bg-gray-900 text-white font-bold uppercase h-12 px-8 rounded-md border-2 border-black disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-black font-bold h-12 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {saving ? "Salvando..." : "Salvar Voto"}
+            {saving ? "SALVANDO..." : "SALVAR VOTO"}
           </Button>
         </div>
       </div>

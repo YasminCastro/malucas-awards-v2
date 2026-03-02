@@ -74,7 +74,7 @@ export function VotingButton({ categories }: VotingButtonProps) {
     <>
       <Button
         onClick={handleStartVoting}
-        className="bg-linear-to-r from-[#f93fff] to-[#f7f908] hover:from-[#e82ff0] hover:to-[#e6ea08] text-black font-bold uppercase h-16 px-10 text-xl rounded-md border-4 border-black shadow-lg transition-all transform hover:scale-105"
+        className="bg-linear-to-r from-[#f93fff] to-[#f7f908] text-black font-bold uppercase h-16 text-xl border-4 border-black hover:scale-105  max-sm:text-base "
       >
         INICIAR VOTAÇÃO
       </Button>

@@ -14,6 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Spinner } from "@/components/ui/spinner";
 
 interface User {
   instagram: string;
@@ -40,6 +41,7 @@ export default function CategorySuggestionPage() {
   const [loading, setLoading] = useState(false);
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [loadingSuggestions, setLoadingSuggestions] = useState(true);
+  const [loadingStatus, setLoadingStatus] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [showForm, setShowForm] = useState(false);
@@ -48,8 +50,37 @@ export default function CategorySuggestionPage() {
   const [selectedParticipantsToAdd, setSelectedParticipantsToAdd] = useState<Record<string, string[]>>({});
 
   useEffect(() => {
-    loadUsers();
-    loadSuggestions();
+    const initialize = async () => {
+      try {
+        const response = await fetch("/api/settings/voting-status", {
+          cache: "no-store",
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const status = data.status as
+            | "escolhendo-categorias"
+            | "pre-votacao"
+            | "votacao"
+            | "pos-votacao"
+            | "resultado"
+            | undefined;
+
+          if (status && status !== "escolhendo-categorias") {
+            router.replace("/");
+            return;
+          }
+        }
+      } catch (error) {
+        console.error("Erro ao verificar status de votação:", error);
+      }
+
+      loadUsers();
+      loadSuggestions();
+      setLoadingStatus(false);
+    };
+
+    initialize();
   }, []);
 
   const loadUsers = async () => {
@@ -137,7 +168,7 @@ export default function CategorySuggestionPage() {
         return updated;
       });
       setExpandedSuggestion(null);
-      
+
       // Forçar reload das sugestões (invalidar cache no servidor já foi feito)
       setLoadingSuggestions(true);
       await loadSuggestions();
@@ -215,6 +246,14 @@ export default function CategorySuggestionPage() {
     }
   };
 
+  if (loadingStatus) {
+    return (
+      <div className="min-h-screen bg-linear-to-br from-[#f93fff] to-[#f7f908] flex items-center justify-center">
+        <Spinner className="size-8" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-linear-to-br from-[#f93fff] to-[#f7f908] p-4 pb-8">
       <div className="max-w-2xl mx-auto">
@@ -291,104 +330,104 @@ export default function CategorySuggestionPage() {
               </div>
             </CardHeader>
             <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="suggesterName">Seu Nome</Label>
-                <Input
-                  id="suggesterName"
-                  type="text"
-                  value={suggesterName}
-                  onChange={(e) => setSuggesterName(e.target.value)}
-                  placeholder="Digite seu nome"
-                  className="w-full"
-                  disabled={loading}
-                />
-              </div>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="suggesterName">Seu Nome</Label>
+                  <Input
+                    id="suggesterName"
+                    type="text"
+                    value={suggesterName}
+                    onChange={(e) => setSuggesterName(e.target.value)}
+                    placeholder="Digite seu nome"
+                    className="w-full"
+                    disabled={loading}
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="categoryName">Nome da Categoria</Label>
-                <Input
-                  id="categoryName"
-                  type="text"
-                  value={categoryName}
-                  onChange={(e) => setCategoryName(e.target.value)}
-                  placeholder="Ex: Melhor Meme do Ano"
-                  className="w-full"
-                  disabled={loading}
-                />
-              </div>
+                <div className="space-y-2">
+                  <Label htmlFor="categoryName">Nome da Categoria</Label>
+                  <Input
+                    id="categoryName"
+                    type="text"
+                    value={categoryName}
+                    onChange={(e) => setCategoryName(e.target.value)}
+                    placeholder="Ex: Melhor Meme do Ano"
+                    className="w-full"
+                    disabled={loading}
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="observations">Observação (Opcional)</Label>
-                <textarea
-                  id="observations"
-                  value={observations}
-                  onChange={(e) => setObservations(e.target.value)}
-                  placeholder="Explique mais sobre a categoria e por que ela deveria ser incluída"
-                  className="flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-xs placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:border-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
-                  disabled={loading}
-                  rows={4}
-                />
-              </div>
+                <div className="space-y-2">
+                  <Label htmlFor="observations">Observação (Opcional)</Label>
+                  <textarea
+                    id="observations"
+                    value={observations}
+                    onChange={(e) => setObservations(e.target.value)}
+                    placeholder="Explique mais sobre a categoria e por que ela deveria ser incluída"
+                    className="flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-xs placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:border-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                    disabled={loading}
+                    rows={4}
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <Label>Participantes (Opcional)</Label>
-                {loadingUsers ? (
-                  <p className="text-sm text-gray-600">Carregando participantes...</p>
-                ) : (
-                  <div className="border-2 border-black rounded-md p-4 max-h-64 overflow-y-auto bg-white">
-                    {users.length === 0 ? (
-                      <p className="text-sm text-gray-600">Nenhum participante disponível</p>
-                    ) : (
-                      <div className="space-y-2">
-                        {users.map((user) => (
-                          <label
-                            key={user.instagram}
-                            className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded"
-                          >
-                            <input
-                              type="checkbox"
-                              checked={selectedParticipants.includes(user.instagram)}
-                              onChange={() => handleParticipantToggle(user.instagram)}
-                              disabled={loading}
-                              className="w-4 h-4 border-2 border-black rounded"
-                            />
-                            <span className="text-sm font-medium">{user.instagram}</span>
-                          </label>
-                        ))}
-                      </div>
-                    )}
+                <div className="space-y-2">
+                  <Label>Participantes (Opcional)</Label>
+                  {loadingUsers ? (
+                    <p className="text-sm text-gray-600">Carregando participantes...</p>
+                  ) : (
+                    <div className="border-2 border-black rounded-md p-4 max-h-64 overflow-y-auto bg-white">
+                      {users.length === 0 ? (
+                        <p className="text-sm text-gray-600">Nenhum participante disponível</p>
+                      ) : (
+                        <div className="space-y-2">
+                          {users.map((user) => (
+                            <label
+                              key={user.instagram}
+                              className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded"
+                            >
+                              <input
+                                type="checkbox"
+                                checked={selectedParticipants.includes(user.instagram)}
+                                onChange={() => handleParticipantToggle(user.instagram)}
+                                disabled={loading}
+                                className="w-4 h-4 border-2 border-black rounded"
+                              />
+                              <span className="text-sm font-medium">{user.instagram}</span>
+                            </label>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  <p className="text-sm text-gray-600">
+                    Selecione os participantes para esta categoria (opcional)
+                  </p>
+                </div>
+
+                {error && (
+                  <div className="p-3 bg-red-100 border-2 border-red-500 rounded-md text-red-700">
+                    {error}
                   </div>
                 )}
-                <p className="text-sm text-gray-600">
-                  Selecione os participantes para esta categoria (opcional)
-                </p>
-              </div>
 
-              {error && (
-                <div className="p-3 bg-red-100 border-2 border-red-500 rounded-md text-red-700">
-                  {error}
+                {success && (
+                  <div className="p-3 bg-green-100 border-2 border-green-500 rounded-md text-green-700">
+                    Sugestão enviada com sucesso! Redirecionando...
+                  </div>
+                )}
+
+                <div className="flex gap-2">
+                  <Button
+                    type="submit"
+                    disabled={loading}
+                    className="flex-1"
+                  >
+                    {loading ? "Enviando..." : "Enviar Sugestão"}
+                  </Button>
                 </div>
-              )}
-
-              {success && (
-                <div className="p-3 bg-green-100 border-2 border-green-500 rounded-md text-green-700">
-                  Sugestão enviada com sucesso! Redirecionando...
-                </div>
-              )}
-
-              <div className="flex gap-2">
-                <Button
-                  type="submit"
-                  disabled={loading}
-                  className="flex-1"
-                >
-                  {loading ? "Enviando..." : "Enviar Sugestão"}
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
+              </form>
+            </CardContent>
+          </Card>
         )}
 
         {/* Lista de Sugestões */}
@@ -409,11 +448,10 @@ export default function CategorySuggestionPage() {
                 {suggestions.map((suggestion) => (
                   <div
                     key={suggestion.id}
-                    className={`border-2 rounded-lg p-4 ${
-                      suggestion.status === "approved"
-                        ? "bg-green-50 border-green-400"
-                        : "bg-white border-black"
-                    }`}
+                    className={`border-2 rounded-lg p-4 ${suggestion.status === "approved"
+                      ? "bg-green-50 border-green-400"
+                      : "bg-white border-black"
+                      }`}
                   >
                     <div className="flex flex-col gap-3">
                       <div className="flex items-start justify-between gap-4">

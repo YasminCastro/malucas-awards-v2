@@ -25,7 +25,7 @@ interface Category {
   participants: Participant[];
 }
 
-type VotingStatus = 
+type VotingStatus =
   | "escolhendo-categorias"
   | "pre-votacao"
   | "votacao"
@@ -124,7 +124,7 @@ export function PublicHomeClient({ categories, votingStatus, eventDate }: Public
                   Premiação anual dos melhores momentos
                   {votingStatus === "pos-votacao" && (
                     <span className="block mt-1 font-medium">
-                      {eventDate 
+                      {eventDate
                         ? `O resultado será divulgado no dia ${new Date(eventDate + 'T00:00:00').toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' })}`
                         : "O resultado será divulgado no dia do evento"}
                     </span>
@@ -186,7 +186,7 @@ export function PublicHomeClient({ categories, votingStatus, eventDate }: Public
                       <AccordionContent className="pt-0 pb-6">
                         {categoryResult.results.length > 0 ? (
                           <div className="space-y-4">
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                               {categoryResult.results.map((result, index) => {
                                 const position = index + 1;
                                 const positionColors = [
@@ -199,9 +199,8 @@ export function PublicHomeClient({ categories, votingStatus, eventDate }: Public
                                 return (
                                   <div
                                     key={result.participantInstagram}
-                                    className={`border-4 rounded-lg p-4 ${
-                                      positionColors[index] || "bg-gray-100 border-gray-400"
-                                    }`}
+                                    className={`border-4 rounded-lg p-4 ${positionColors[index] || "bg-gray-100 border-gray-400"
+                                      }`}
                                   >
                                     <div className="text-center mb-3">
                                       <span className="text-4xl">
@@ -262,13 +261,13 @@ export function PublicHomeClient({ categories, votingStatus, eventDate }: Public
                     </h2>
                   </AccordionTrigger>
                   <AccordionContent className="pt-0 pb-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       {category.participants.map((participant, index) => (
                         <div
                           key={index}
                           className="border-2 border-black rounded-md overflow-hidden hover:bg-gray-50 transition-colors"
                         >
-                          <div className="relative w-full aspect-square">
+                          <div className="relative w-full aspect-3/4">
                             <ParticipantImage
                               src={`/nominees/${participant.image}`}
                               alt={participant.instagram}

@@ -33,7 +33,7 @@ interface User {
   isAdmin?: boolean;
 }
 
-type VotingStatus = 
+type VotingStatus =
   | "escolhendo-categorias"
   | "pre-votacao"
   | "votacao"
@@ -200,7 +200,7 @@ export function HomeClient({ categories, user, votingStatus, eventDate }: HomeCl
                     <span className="font-bold">@{user.instagram}</span>
                     {votingStatus === "pos-votacao" && (
                       <span className="block mt-1 font-medium">
-                        {eventDate 
+                        {eventDate
                           ? `O resultado será divulgado no dia ${new Date(eventDate + 'T00:00:00').toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' })}`
                           : "O resultado será divulgado no dia do evento"}
                       </span>
@@ -267,7 +267,7 @@ export function HomeClient({ categories, user, votingStatus, eventDate }: HomeCl
                       <AccordionContent className="pt-0 pb-6">
                         {categoryResult.results.length > 0 ? (
                           <div className="space-y-4">
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                               {categoryResult.results.map((result, index) => {
                                 const position = index + 1;
                                 const positionColors = [
@@ -280,9 +280,8 @@ export function HomeClient({ categories, user, votingStatus, eventDate }: HomeCl
                                 return (
                                   <div
                                     key={result.participantInstagram}
-                                    className={`border-4 rounded-lg p-4 ${
-                                      positionColors[index] || "bg-gray-100 border-gray-400"
-                                    }`}
+                                    className={`border-4 rounded-lg p-4 ${positionColors[index] || "bg-gray-100 border-gray-400"
+                                      }`}
                                   >
                                     <div className="text-center mb-3">
                                       <span className="text-4xl">
@@ -329,7 +328,7 @@ export function HomeClient({ categories, user, votingStatus, eventDate }: HomeCl
             {categories.map((category) => {
               const votedParticipant = userVotes[category._id];
               const categoryResult = categoryResults.find(cr => cr.categoryId === category._id);
-              
+
               return (
                 <Accordion
                   key={category._id}
@@ -360,18 +359,17 @@ export function HomeClient({ categories, user, votingStatus, eventDate }: HomeCl
                           </Button>
                         </div>
                       )}
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         {category.participants.map((participant, index) => {
                           const isVoted =
                             votedParticipant === participant.instagram;
                           return (
                             <div
                               key={index}
-                              className={`border-2 rounded-md overflow-hidden transition-colors ${
-                                isVoted
-                                  ? "border-green-500 bg-green-50"
-                                  : "border-black hover:bg-gray-50"
-                              }`}
+                              className={`border-2 rounded-md overflow-hidden transition-colors ${isVoted
+                                ? "border-green-500 bg-green-50"
+                                : "border-black hover:bg-gray-50"
+                                }`}
                             >
                               <div className="relative w-full aspect-square">
                                 <ParticipantImage
@@ -381,16 +379,14 @@ export function HomeClient({ categories, user, votingStatus, eventDate }: HomeCl
                                 />
                               </div>
                               <div
-                                className={`p-3 border-t-2 ${
-                                  isVoted ? "border-green-500" : "border-black"
-                                }`}
+                                className={`p-3 border-t-2 ${isVoted ? "border-green-500" : "border-black"
+                                  }`}
                               >
                                 <p
-                                  className={`font-medium text-center text-sm ${
-                                    isVoted
-                                      ? "font-bold text-green-700"
-                                      : "text-black"
-                                  }`}
+                                  className={`font-medium text-center text-sm ${isVoted
+                                    ? "font-bold text-green-700"
+                                    : "text-black"
+                                    }`}
                                 >
                                   {participant.name || participant.instagram}
                                   {isVoted && (

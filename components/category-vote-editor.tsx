@@ -73,20 +73,19 @@ export function CategoryVoteEditor({
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3">
             {participants.map((participant, index) => {
               const isSelected = selectedParticipant === participant.instagram;
               return (
                 <button
                   key={index}
                   onClick={() => setSelectedParticipant(participant.instagram)}
-                  className={`border-4 rounded-md overflow-hidden transition-all ${
-                    isSelected
+                  className={`border-2 rounded-md overflow-hidden transition-all ${isSelected
                       ? "border-green-500 bg-green-50 scale-105 shadow-lg"
                       : "border-black hover:bg-gray-50"
-                  }`}
+                    }`}
                 >
-                  <div className="relative w-full aspect-square">
+                  <div className="relative w-full aspect-square max-h-24 sm:max-h-28">
                     <ParticipantImage
                       src={`/nominees/${participant.image}`}
                       alt={participant.name || participant.instagram}
@@ -94,14 +93,12 @@ export function CategoryVoteEditor({
                     />
                   </div>
                   <div
-                    className={`p-3 border-t-4 ${
-                      isSelected ? "border-green-500" : "border-black"
-                    }`}
+                    className={`p-1.5 sm:p-2 border-t-2 ${isSelected ? "border-green-500" : "border-black"
+                      }`}
                   >
                     <p
-                      className={`font-medium text-center text-sm ${
-                        isSelected ? "font-bold text-green-700" : ""
-                      }`}
+                      className={`font-medium text-center text-xs sm:text-sm ${isSelected ? "font-bold text-green-700" : ""
+                        }`}
                     >
                       {participant.name || participant.instagram}
                     </p>

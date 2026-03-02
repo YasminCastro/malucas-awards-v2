@@ -16,6 +16,7 @@ import { Card, CardContent } from "@/components/ui/card";
 interface Participant {
   instagram: string;
   image: string;
+  name?: string | null;
 }
 
 interface Category {
@@ -71,6 +72,18 @@ export function PublicHomeClient({ categories, votingStatus, eventDate }: Public
     } finally {
       setResultsLoading(false);
     }
+  };
+
+  const getDisplayName = (instagram: string) => {
+    for (const category of categories) {
+      const participant = category.participants.find(
+        (p) => p.instagram.toLowerCase() === instagram.toLowerCase()
+      );
+      if (participant) {
+        return participant.name || participant.instagram;
+      }
+    }
+    return instagram;
   };
 
   const getUserImage = (instagram: string) => {
@@ -207,7 +220,7 @@ export function PublicHomeClient({ categories, votingStatus, eventDate }: Public
                                     </div>
                                     <div className="text-center">
                                       <p className="font-bold text-lg">
-                                        {result.participantInstagram}
+                                        {getDisplayName(result.participantInstagram)}
                                       </p>
                                       <p className="text-sm mt-1">
                                         {result.votes} voto{result.votes !== 1 ? "s" : ""}
@@ -264,7 +277,7 @@ export function PublicHomeClient({ categories, votingStatus, eventDate }: Public
                           </div>
                           <div className="p-3 border-t-2 border-black">
                             <p className="text-black font-medium text-center text-sm">
-                              {participant.instagram}
+                              {participant.name || participant.instagram}
                             </p>
                           </div>
                         </div>

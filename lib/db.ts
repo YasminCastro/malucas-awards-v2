@@ -24,6 +24,8 @@ export async function connectToDatabase(): Promise<{ client: MongoClient; db: Db
   const client = new MongoClient(MONGODB_URI!, {
     maxPoolSize: 10,
     minPoolSize: 1,
+    tls: true,
+    tlsAllowInvalidCertificates: true,
   });
 
   await client.connect();

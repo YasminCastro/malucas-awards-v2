@@ -1,29 +1,14 @@
 import { NextResponse } from "next/server";
-import { getCategories, getCategoryResults } from "@/lib/db";
+import { getCategoryResults } from "@/lib/db";
 
-// GET - Buscar resultados das categorias (público)
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const categories = await getCategories();
+    const { searchParams } = new URL(request.url);
+    const categoryId = searchParams.get("categoryId");
 
-    // Calcular resultados para cada categoria
-    const results = await Promise.all(
-      categories.map(async (category) => {
-        const categoryId = String((category as any)._id);
-        const legacyId = (category as any).id ? String((category as any).id) : null;
-        const idsToQuery =
-          legacyId && legacyId !== categoryId ? [categoryId, legacyId] : categoryId;
-        const categoryResults = await getCategoryResults(idsToQuery);
-        return {
-          categoryId,
-          categoryName: category.name,
-          results: categoryResults, // Todos os resultados, não apenas top 3
-          totalVotes: categoryResults.reduce((sum, r) => sum + r.votes, 0),
-        };
-      })
-    );
+    const categoryResults = await getCategoryResults(categoryId || "");
 
-    return NextResponse.json({ categoryResults: results });
+    return NextResponse.json(categoryResults);
   } catch (error: any) {
     console.error("Erro ao buscar resultados:", error);
     return NextResponse.json(

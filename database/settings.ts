@@ -19,7 +19,6 @@ export async function getSettings(): Promise<Settings | null> {
   }
 
   try {
-    // escolhendo-categorias, pre-votacao, votacao, pos-votacao, resultado
     const filePath = path.join(process.cwd(), "database", "settings.json");
     const fileContent = await fs.readFile(filePath, "utf-8");
     const rawSettings = JSON.parse(fileContent) as any;

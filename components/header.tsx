@@ -12,11 +12,11 @@ import { Category } from "@/database/categories";
 interface Header {
     votingStatus: VotingStatus;
     user?: JWTPayload | null;
-    categories: Category[]
-
+    categories: Category[];
+    onVotesSaved?: (votes: Record<string, string>) => void;
 }
 
-export function Header({ votingStatus, user, categories }: Header) {
+export function Header({ votingStatus, user, categories, onVotesSaved }: Header) {
     const getStatusMessage = () => {
         switch (votingStatus) {
             case "pre-votacao":
@@ -81,7 +81,7 @@ export function Header({ votingStatus, user, categories }: Header) {
                 )}
             </div>
             {votingStatus === "votacao" && user && (
-                <VotingSection categories={categories} />
+                <VotingSection categories={categories} onVotesSaved={onVotesSaved} />
             )}
 
             {user && getStatusMessage() && (

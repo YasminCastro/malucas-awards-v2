@@ -18,9 +18,10 @@ interface Category {
 
 interface VotingButtonProps {
   categories: Category[];
+  onVotesSaved?: (votes: Record<string, string>) => void;
 }
 
-export function VotingButton({ categories }: VotingButtonProps) {
+export function VotingButton({ categories, onVotesSaved }: VotingButtonProps) {
   const [isVoting, setIsVoting] = useState(false);
   const [previousVotes, setPreviousVotes] = useState<Record<string, string>>(
     {}
@@ -62,6 +63,7 @@ export function VotingButton({ categories }: VotingButtonProps) {
         throw new Error(data.error || "Erro ao salvar votos");
       }
 
+      onVotesSaved?.(votes);
       setIsVoting(false);
       alert("Votos registrados com sucesso!");
     } catch (error: any) {

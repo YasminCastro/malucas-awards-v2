@@ -16,12 +16,13 @@ interface Category {
 
 interface VotingSectionProps {
   categories: Category[];
+  onVotesSaved?: (votes: Record<string, string>) => void;
 }
 
-export function VotingSection({ categories }: VotingSectionProps) {
+export function VotingSection({ categories, onVotesSaved }: VotingSectionProps) {
   return (
     <div className="border-t-4 border-black pt-4">
-      <VotingButton categories={categories} />
+      <VotingButton categories={categories} onVotesSaved={onVotesSaved} />
     </div>
   );
 }

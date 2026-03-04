@@ -44,7 +44,7 @@ export default function LoginPage() {
         return;
       }
 
-      router.push("/vote");
+      router.push("/");
       router.refresh();
     } catch (err) {
       setError("Erro ao conectar com o servidor");

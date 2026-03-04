@@ -6,26 +6,46 @@ import { useEffect, useState } from "react";
 import { VotingStatus } from "@/types/settings";
 import { CategoryResult } from "@/types/categories";
 import { CategoryCard } from "./category-card";
+import { Dispatch, SetStateAction } from "react";
 
 interface IProps {
     categories: Category[]
     user: JWTPayload | null
     votingStatus: VotingStatus
+    userVotes?: Record<string, string>
+    setUserVotes?: Dispatch<SetStateAction<Record<string, string>>>
 }
 
-export function CategoryCardWrapper({ categories, user, votingStatus }: IProps) {
-    const [userVotes, setUserVotes] = useState<Record<string, string>>({});
+export function CategoryCardWrapper({ categories, user, votingStatus, userVotes: userVotesProp, setUserVotes: setUserVotesProp }: IProps) {
+    const [internalUserVotes, setInternalUserVotes] = useState<Record<string, string>>({});
     const [categoriesResults, setCategoriesResults] = useState<Record<string, CategoryResult[]>>({});
 
-    useEffect(() => {
-        if (user) {
-            loadUserVotes();
-        }
+    const userVotes = userVotesProp ?? internalUserVotes;
+    const setUserVotes = setUserVotesProp ?? setInternalUserVotes;
 
+    useEffect(() => {
         if (votingStatus === "resultado") {
             loadResults();
         }
-    }, []);
+    }, [votingStatus]);
+
+    useEffect(() => {
+        if (user && !setUserVotesProp) {
+            loadUserVotes();
+        }
+    }, [user]);
+
+    const loadUserVotes = async () => {
+        try {
+            const response = await fetch("/api/votes/me");
+            if (response.ok) {
+                const data = await response.json();
+                setInternalUserVotes(data.votes || {});
+            }
+        } catch (error) {
+            console.error("Erro ao carregar votos:", error);
+        }
+    };
 
     const loadResults = async () => {
         try {
@@ -36,18 +56,6 @@ export function CategoryCardWrapper({ categories, user, votingStatus }: IProps) 
             }
         } catch (error) {
             console.error("Erro ao carregar resultados:", error);
-        }
-    };
-
-    const loadUserVotes = async () => {
-        try {
-            const response = await fetch("/api/votes/me");
-            if (response.ok) {
-                const data = await response.json();
-                setUserVotes(data.votes || {});
-            }
-        } catch (error) {
-            console.error("Erro ao carregar votos:", error);
         }
     };
 

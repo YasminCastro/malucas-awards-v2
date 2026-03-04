@@ -30,7 +30,7 @@ export async function connectToDatabase(): Promise<{ client: MongoClient; db: Db
 
   await client.connect();
 
-  let dbName = "malucas-awards-2026";
+  let dbName = "malucas-awards-teste";
   try {
     const match = MONGODB_URI!.match(/\/([^\/\?\#]+)(?:\?|#|$)/);
     if (match && match[1]) {

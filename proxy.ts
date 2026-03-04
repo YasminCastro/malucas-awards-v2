@@ -12,13 +12,13 @@ export async function proxy(request: NextRequest) {
 
   // Se for rota pública, permitir acesso
   if (isPublicRoute) {
-    // Se já estiver autenticado e estiver em /login ou /signup, redirecionar para /vote
+    // Se já estiver autenticado e estiver em /login ou /signup, redirecionar para /
     if (
       token &&
       verifyToken(token) &&
       (pathname === "/login" || pathname === "/signup")
     ) {
-      return NextResponse.redirect(new URL("/vote", request.url));
+      return NextResponse.redirect(new URL("/", request.url));
     }
     return NextResponse.next();
   }

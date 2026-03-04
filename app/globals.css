@@ -123,3 +123,22 @@
     @apply bg-background text-foreground;
   }
 }
+
+@keyframes glow-gold {
+  0%, 100% { box-shadow: 0 0 5px 2px rgba(234, 179, 8, 0.4), 0 0 10px 3px rgba(234, 179, 8, 0.2); }
+  50%       { box-shadow: 0 0 10px 4px rgba(234, 179, 8, 0.7), 0 0 20px 7px rgba(234, 179, 8, 0.3); }
+}
+
+@keyframes glow-silver {
+  0%, 100% { box-shadow: 0 0 8px 3px rgba(100, 116, 139, 0.55), 0 0 16px 6px rgba(100, 116, 139, 0.35); }
+  50%       { box-shadow: 0 0 14px 6px rgba(100, 116, 139, 0.8), 0 0 28px 10px rgba(100, 116, 139, 0.45); }
+}
+
+@keyframes glow-bronze {
+  0%, 100% { box-shadow: 0 0 5px 2px rgba(249, 115, 22, 0.4), 0 0 10px 3px rgba(249, 115, 22, 0.2); }
+  50%       { box-shadow: 0 0 10px 4px rgba(249, 115, 22, 0.7), 0 0 20px 7px rgba(249, 115, 22, 0.3); }
+}
+
+.animate-glow-gold   { animation: glow-gold   2s ease-in-out infinite; }
+.animate-glow-silver { animation: glow-silver 2s ease-in-out infinite; }
+.animate-glow-bronze { animation: glow-bronze 2s ease-in-out infinite; }

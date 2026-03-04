@@ -24,11 +24,13 @@ export async function connectToDatabase(): Promise<{ client: MongoClient; db: Db
   const client = new MongoClient(MONGODB_URI!, {
     maxPoolSize: 10,
     minPoolSize: 1,
+    tls: true,
+    tlsAllowInvalidCertificates: true,
   });
 
   await client.connect();
 
-  let dbName = "malucas-awards-2026";
+  let dbName = "malucas-awards-teste";
   try {
     const match = MONGODB_URI!.match(/\/([^\/\?\#]+)(?:\?|#|$)/);
     if (match && match[1]) {

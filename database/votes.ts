@@ -1,4 +1,5 @@
 import { connectToDatabase } from "@/lib/db";
+import { CategoryResult } from "@/types/categories";
 import { Collection } from "mongodb";
 
 export interface Vote {
@@ -76,37 +77,204 @@ export async function getVotesByCategory(categoryId: string | string[]): Promise
 }
 
 // Calcular resultados de uma categoria (contagem de votos)
-export async function getCategoryResults(categoryId: string | string[]): Promise<
-    Array<{
-        participantInstagram: string;
-        votes: number;
-        voters: string[];
-    }>
+export async function getOneCategoryResults(categoryId: string | string[]): Promise<
+    Array<CategoryResult>
 > {
-    const votes = await getVotesByCategory(categoryId);
+    const collection = await getVotesCollection();
 
-    // Agrupar votos por participante
-    const voteCount: Record<string, { count: number; voters: string[] }> = {};
+    const pipeline = [
+        {
+            $match: {
+                categoryId: Array.isArray(categoryId)
+                    ? { $in: categoryId }
+                    : categoryId,
+            },
+        },
+        {
+            $group: {
+                _id: "$participantInstagram",
+                votes: { $sum: 1 },
+                voters: { $push: "$userInstagram" },
+            },
+        },
+        {
+            $project: {
+                _id: 0,
+                participantInstagram: "$_id",
+                votes: 1,
+                voters: 1,
+            },
+        },
+        {
+            $lookup: {
+                from: "users",
+                let: { participantIG: "$participantInstagram" },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $eq: [
+                                    "$instagram",
+                                    {
+                                        $toLower: {
+                                            $replaceAll: {
+                                                input: "$$participantIG",
+                                                find: "@",
+                                                replacement: "",
+                                            },
+                                        },
+                                    },
+                                ],
+                            },
+                        },
+                    },
+                    { $project: { _id: 0, name: 1 } },
+                ],
+                as: "userInfo",
+            },
+        },
+        {
+            $addFields: {
+                participantName: { $arrayElemAt: ["$userInfo.name", 0] },
+            },
+        },
+        {
+            $project: { userInfo: 0 },
+        },
+        {
+            $sort: { votes: -1 },
+        },
+        {
+            $setWindowFields: {
+                sortBy: { votes: -1 },
+                output: {
+                    position: { $rank: {} },
+                },
+            },
+        },
+        {
+            $addFields: {
+                image: {
+                    $concat: [
+                        {
+                            $replaceAll: {
+                                input: "$participantInstagram",
+                                find: "@",
+                                replacement: "",
+                            },
+                        },
+                        ".jpeg",
+                    ],
+                },
+            },
+        },];
 
-    for (const vote of votes) {
-        if (!voteCount[vote.participantInstagram]) {
-            voteCount[vote.participantInstagram] = {
-                count: 0,
-                voters: [],
-            };
-        }
-        voteCount[vote.participantInstagram].count++;
-        voteCount[vote.participantInstagram].voters.push(vote.userInstagram);
-    }
+    return collection.aggregate(pipeline).toArray() as any;
+}
 
-    // Converter para array e ordenar por votos (decrescente)
-    const results = Object.entries(voteCount)
-        .map(([participantInstagram, data]) => ({
-            participantInstagram,
-            votes: data.count,
-            voters: data.voters,
-        }))
-        .sort((a, b) => b.votes - a.votes);
+export async function getAllCategoriesResults(): Promise<Record<string, CategoryResult[]>> {
+    const collection = await getVotesCollection();
 
-    return results;
+    const pipeline = [
+        // 1. Agrupa por categoria + participante
+        {
+            $group: {
+                _id: {
+                    categoryId: "$categoryId",
+                    participantInstagram: "$participantInstagram",
+                },
+                votes: { $sum: 1 },
+                voters: { $push: "$userInstagram" },
+            },
+        },
+        // 2. Projeta para achatar os campos
+        {
+            $project: {
+                _id: 0,
+                categoryId: "$_id.categoryId",
+                participantInstagram: "$_id.participantInstagram",
+                votes: 1,
+                voters: 1,
+            },
+        },
+        // 3. Lookup para buscar o nome do participante na coleção users
+        {
+            $lookup: {
+                from: "users",
+                let: { participantIG: "$participantInstagram" },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $eq: [
+                                    "$instagram",
+                                    {
+                                        $toLower: {
+                                            $replaceAll: {
+                                                input: "$$participantIG",
+                                                find: "@",
+                                                replacement: "",
+                                            },
+                                        },
+                                    },
+                                ],
+                            },
+                        },
+                    },
+                    { $project: { _id: 0, name: 1 } },
+                ],
+                as: "userInfo",
+            },
+        },
+        {
+            $addFields: {
+                participantName: { $arrayElemAt: ["$userInfo.name", 0] },
+                image: {
+                    $concat: [
+                        {
+                            $replaceAll: {
+                                input: "$participantInstagram",
+                                find: "@",
+                                replacement: "",
+                            },
+                        },
+                        ".jpeg",
+                    ],
+                },
+            },
+        },
+        { $project: { userInfo: 0 } },
+        // 4. Ordena por votos dentro de cada categoria
+        { $sort: { categoryId: 1, votes: -1 } },
+        // 5. Calcula o rank separado POR categoria
+        {
+            $setWindowFields: {
+                partitionBy: "$categoryId",
+                sortBy: { votes: -1 },
+                output: {
+                    position: { $rank: {} },
+                },
+            },
+        },
+        // 6. Agrupa de volta, criando um array de participantes por categoria
+        {
+            $group: {
+                _id: "$categoryId",
+                participants: {
+                    $push: {
+                        participantInstagram: "$participantInstagram",
+                        participantName: "$participantName",
+                        votes: "$votes",
+                        voters: "$voters",
+                        position: "$position",
+                        image: "$image",
+                    },
+                },
+            },
+        },
+    ];
+
+    const raw = await collection.aggregate(pipeline).toArray();
+
+    return Object.fromEntries(raw.map((item) => [item._id, item.participants]));
 }

@@ -1,17 +1,19 @@
-import { connectToDatabase } from "@/lib/db";
+import { connectToDatabase, getUsers } from "@/lib/db";
 import { cache, CacheKeys } from "@/lib/cache";
 import { Collection } from "mongodb";
+import normalizeInstagram from "@/utils/normalizeInstagram";
 
 export interface Participant {
     instagram: string;
     image: string;
+    name?: string;
 }
 
 export interface Category {
-    _id?: string;
+    _id: string;
     name: string;
     participants: Participant[];
-    createdAt: Date;
+    createdAt?: Date;
     updatedAt?: Date;
 }
 
@@ -48,11 +50,29 @@ export async function getCategories(options?: { bypassCache?: boolean }): Promis
     const collection = await getCategoriesCollection();
     const categories = await collection.find({}).sort({ createdAt: 1 }).toArray();
 
+    const users = await getUsers();
+
+    const usersByInstagram = new Map(
+        users.map((user) => [normalizeInstagram(user.instagram), user])
+    );
+
+    const formattedCategories = categories.map((category) => ({
+        _id: category._id.toString(),
+        name: category.name,
+        participants: category.participants.map((p) => ({
+            instagram: p.instagram,
+            image: p.image,
+            name:
+                usersByInstagram.get(normalizeInstagram(p.instagram))?.name ||
+                undefined,
+        })).sort((a, b) => (a.name ?? a.instagram).localeCompare(b.name ?? b.instagram)),
+    })).sort((a, b) => (a.name).localeCompare(b.name));
+
     if (!bypassCache) {
-        cache.set(CacheKeys.CATEGORIES, categories, 2 * 60 * 1000);
+        cache.set(CacheKeys.CATEGORIES, formattedCategories, 2 * 60 * 1000);
     }
 
-    return categories;
+    return formattedCategories;
 }
 
 export async function getCategoryById(id: string): Promise<Category | null> {

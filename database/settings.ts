@@ -11,15 +11,8 @@ export interface Settings {
   eventDate?: string;
 }
 
-let settingsCache: Settings | null = null;
-
 export async function getSettings(): Promise<Settings | null> {
-  if (settingsCache) {
-    return settingsCache;
-  }
-
   try {
-    // escolhendo-categorias, pre-votacao, votacao, pos-votacao, resultado
     const filePath = path.join(process.cwd(), "database", "settings.json");
     const fileContent = await fs.readFile(filePath, "utf-8");
     const rawSettings = JSON.parse(fileContent) as any;
@@ -28,16 +21,12 @@ export async function getSettings(): Promise<Settings | null> {
       return null;
     }
 
-    settingsCache = {
+    return {
       status: rawSettings.status,
-      eventDate: rawSettings.eventDate
+      eventDate: rawSettings.eventDate,
     };
-
-    return settingsCache;
   } catch (error: any) {
     console.error("Erro ao ler configurações:", error);
-    settingsCache = null;
-
     return null;
   }
 }

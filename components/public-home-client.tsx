@@ -12,25 +12,8 @@ import {
 import { ParticipantImage } from "@/components/participant-image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-
-interface Participant {
-  instagram: string;
-  image: string;
-  name?: string | null;
-}
-
-interface Category {
-  _id: string;
-  name: string;
-  participants: Participant[];
-}
-
-type VotingStatus =
-  | "escolhendo-categorias"
-  | "pre-votacao"
-  | "votacao"
-  | "pos-votacao"
-  | "resultado";
+import { Category } from "@/database/categories";
+import { VotingStatus } from "@/types/settings";
 
 interface CategoryResult {
   categoryId: string;

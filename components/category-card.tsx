@@ -52,6 +52,11 @@ export function CategoryCard({ category, user, votingStatus, userVotes, setUserV
         "bg-gray-50 border-gray-500",
         "bg-orange-50 border-orange-500",
     ];
+    const positionGlow = [
+        "animate-glow-gold",
+        "animate-glow-silver",
+        "animate-glow-bronze",
+    ];
     const positionIcons = ["🥇", "🥈", "🥉"];
 
     return (
@@ -113,20 +118,28 @@ export function CategoryCard({ category, user, votingStatus, userVotes, setUserV
                                     </div>
                                 </div>
                             })}
-                            {votingStatus === "resultado" && categoryResult && category.participants.map((participant, index) => {
+                            {votingStatus === "resultado" && categoryResult && [...category.participants].sort((a, b) => {
+                                const aVotes = categoryResult.find(r => r.participantInstagram === a.instagram)?.votes ?? 0;
+                                const bVotes = categoryResult.find(r => r.participantInstagram === b.instagram)?.votes ?? 0;
+                                return bVotes - aVotes;
+                            }).map((participant, index) => {
                                 const isVoted =
                                     votedParticipant === participant.instagram;
 
                                 const participantResult = categoryResult.find((result) => result.participantInstagram === participant.instagram);
-                                let cardColor = null
+                                let cardColor = null;
+                                let cardGlow = null;
 
-                                if (participantResult) {
+                                if (participantResult && participantResult.position <= 3) {
                                     cardColor = positionColorsCard[participantResult.position - 1];
+                                    cardGlow = positionGlow[participantResult.position - 1];
+                                } else if (participantResult) {
+                                    cardColor = positionColorsCard[participantResult.position - 1] ?? null;
                                 }
 
                                 return <div
                                     key={index}
-                                    className={`border-2 rounded-md overflow-hidden ${cardColor ? cardColor : "border-black "} `}
+                                    className={`border-2 rounded-md overflow-hidden ${cardColor ? cardColor : "border-black"} ${cardGlow ?? ""}`}
                                 >
                                     <div className="relative w-full aspect-3/4">
                                         <ParticipantImage

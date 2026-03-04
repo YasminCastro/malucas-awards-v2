@@ -50,10 +50,6 @@ export async function getCategories(options?: { bypassCache?: boolean }): Promis
     const collection = await getCategoriesCollection();
     const categories = await collection.find({}).sort({ createdAt: 1 }).toArray();
 
-    if (!bypassCache) {
-        cache.set(CacheKeys.CATEGORIES, categories, 2 * 60 * 1000);
-    }
-
     const users = await getUsers();
 
     const usersByInstagram = new Map(
@@ -71,6 +67,10 @@ export async function getCategories(options?: { bypassCache?: boolean }): Promis
                 undefined,
         })).sort((a, b) => (a.name ?? a.instagram).localeCompare(b.name ?? b.instagram)),
     })).sort((a, b) => (a.name).localeCompare(b.name));
+
+    if (!bypassCache) {
+        cache.set(CacheKeys.CATEGORIES, formattedCategories, 2 * 60 * 1000);
+    }
 
     return formattedCategories;
 }

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isCurrentUserAdmin } from "@/lib/auth";
-import { getCategories, getCategoryResults, getAllVotes } from "@/lib/db";
+import { getCategories, getOneCategoryResults, getAllVotes } from "@/lib/db";
 
 // GET - Buscar resultados das categorias
 export async function GET() {
@@ -20,7 +20,7 @@ export async function GET() {
         const legacyId = (category as any).id ? String((category as any).id) : null;
         const idsToQuery =
           legacyId && legacyId !== categoryId ? [categoryId, legacyId] : categoryId;
-        const categoryResults = await getCategoryResults(idsToQuery);
+        const categoryResults = await getOneCategoryResults(idsToQuery);
         return {
           categoryId,
           categoryName: category.name,

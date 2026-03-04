@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import { CategoryCard } from "@/components/category-card";
+import { CategoryCardWrapper } from "@/components/category-card-wrapper";
 
 export const dynamic = "force-dynamic";
 
@@ -37,9 +38,8 @@ export default async function Home() {
               </div>
             )}
 
-            {categories.map((category) => (
-              <CategoryCard user={user} key={category._id} category={category} votingStatus={votingStatus} />
-            ))}
+            <CategoryCardWrapper user={user} categories={categories} votingStatus={votingStatus} />
+
           </div>
         </>}
       </div>

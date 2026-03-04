@@ -130,8 +130,8 @@
 }
 
 @keyframes glow-silver {
-  0%, 100% { box-shadow: 0 0 5px 2px rgba(148, 163, 184, 0.4), 0 0 10px 3px rgba(148, 163, 184, 0.2); }
-  50%       { box-shadow: 0 0 10px 4px rgba(148, 163, 184, 0.7), 0 0 20px 7px rgba(148, 163, 184, 0.3); }
+  0%, 100% { box-shadow: 0 0 8px 3px rgba(100, 116, 139, 0.55), 0 0 16px 6px rgba(100, 116, 139, 0.35); }
+  50%       { box-shadow: 0 0 14px 6px rgba(100, 116, 139, 0.8), 0 0 28px 10px rgba(100, 116, 139, 0.45); }
 }
 
 @keyframes glow-bronze {

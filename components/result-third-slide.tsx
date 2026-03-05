@@ -251,9 +251,6 @@ export function ResultThirdSlide({ categoryName, results, isActive = false }: IP
     return (
         <div ref={slideRef} className="w-full h-full min-h-0 shrink-0 relative flex flex-col items-center justify-start pt-6 px-6 pb-6 md:pt-10 md:px-10 md:pb-10 overflow-hidden">
             <h2 className="text-5xl mb-4 uppercase font-bold text-center">{categoryName}</h2>
-
-            <p className="text-lg text-black/80 mb-8 text-center">Ganhadores</p>
-
             {showCenterCard && thirdVotesResult && (
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none pt-6 px-6 pb-6 md:pt-10 md:px-10 md:pb-10">
                     <div className="flex flex-wrap items-center justify-center gap-6">

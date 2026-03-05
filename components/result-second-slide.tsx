@@ -96,9 +96,8 @@ export function ResultSecondSlide({ categoryName, participants, isActive = false
             />
 
             <div
-                className={`w-full max-w-4xl grid gap-4 ${
-                    collapseHidden ? "grid-cols-3" : "grid-cols-2 sm:grid-cols-3 md:grid-cols-4"
-                }`}
+                className={`w-full max-w-4xl grid gap-4 ${collapseHidden ? "grid-cols-3" : "grid-cols-2 sm:grid-cols-3 md:grid-cols-4"
+                    }`}
             >
                 {sortedByName.map((result, index) => {
                     const hideThis = shouldHide && !isInTop3(result.participantInstagram);
@@ -119,14 +118,14 @@ export function ResultSecondSlide({ categoryName, participants, isActive = false
                             style={
                                 outOfLayout
                                     ? {
-                                          position: "absolute",
-                                          width: 0,
-                                          height: 0,
-                                          overflow: "hidden",
-                                          margin: 0,
-                                          padding: 0,
-                                          pointerEvents: "none",
-                                      }
+                                        position: "absolute",
+                                        width: 0,
+                                        height: 0,
+                                        overflow: "hidden",
+                                        margin: 0,
+                                        padding: 0,
+                                        pointerEvents: "none",
+                                    }
                                     : undefined
                             }
                         >

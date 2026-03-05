@@ -142,3 +142,85 @@
 .animate-glow-gold   { animation: glow-gold   2s ease-in-out infinite; }
 .animate-glow-silver { animation: glow-silver 2s ease-in-out infinite; }
 .animate-glow-bronze { animation: glow-bronze 2s ease-in-out infinite; }
+
+/* Glitch logo effect */
+@keyframes glitch-1 {
+  0%, 82%, 84%, 86%, 88%, 90%, 92%, 94%, 96%, 98%, 100% {
+    transform: translate(0, 0);
+    clip-path: inset(0 0 0 0);
+    opacity: 0;
+  }
+  83% {
+    transform: translate(-3px, 2px);
+    clip-path: inset(25% 0 50% 0);
+    opacity: 0.85;
+  }
+  85% {
+    transform: translate(2px, -2px);
+    clip-path: inset(50% 0 25% 0);
+    opacity: 0.85;
+  }
+  87% {
+    transform: translate(3px, 1px);
+    clip-path: inset(0 0 70% 0);
+    opacity: 0.8;
+  }
+  89% {
+    transform: translate(-2px, -1px);
+    clip-path: inset(30% 0 0 0);
+    opacity: 0.8;
+  }
+  91% {
+    transform: translate(2px, 2px);
+    clip-path: inset(10% 0 60% 0);
+    opacity: 0.75;
+  }
+}
+
+@keyframes glitch-2 {
+  0%, 81%, 83%, 85%, 87%, 89%, 91%, 93%, 95%, 97%, 100% {
+    transform: translate(0, 0);
+    clip-path: inset(0 0 0 0);
+    opacity: 0;
+  }
+  82% {
+    transform: translate(3px, -2px);
+    clip-path: inset(60% 0 20% 0);
+    opacity: 0.8;
+  }
+  84% {
+    transform: translate(-2px, 1px);
+    clip-path: inset(15% 0 55% 0);
+    opacity: 0.8;
+  }
+  86% {
+    transform: translate(-3px, -1px);
+    clip-path: inset(0 0 40% 0);
+    opacity: 0.75;
+  }
+  88% {
+    transform: translate(2px, 2px);
+    clip-path: inset(45% 0 0 0);
+    opacity: 0.75;
+  }
+  90% {
+    transform: translate(-1px, -2px);
+    clip-path: inset(35% 0 35% 0);
+    opacity: 0.7;
+  }
+}
+
+.logo-glitch-layer {
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  pointer-events: none;
+}
+
+.logo-glitch-layer-1 {
+  animation: glitch-1 4s steps(1) infinite;
+}
+
+.logo-glitch-layer-2 {
+  animation: glitch-2 5s steps(1) infinite;
+}

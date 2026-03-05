@@ -24,7 +24,8 @@ export async function GET() {
         return {
           categoryId,
           categoryName: category.name,
-          results: categoryResults.slice(0, 3), // Top 3
+          results: categoryResults.slice(0, 3), // Top 3 (pódio)
+          allResults: categoryResults, // Todos com votos (para slide de concorrentes)
           totalVotes: categoryResults.reduce((sum, r) => sum + r.votes, 0),
         };
       })

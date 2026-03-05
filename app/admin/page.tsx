@@ -50,6 +50,7 @@ export default function AdminPage() {
           <AdminCard title="Sugestões de Categorias" description="Gerencie as sugestões de categorias enviadas pelos usuários" path="/admin/category-suggestions" />
           <AdminCard title="Resultados" description="Visualize resultados e votos dos usuários" path="/admin/result" />
           <AdminCard title="Configurações" description="Configure o status e outras opções do sistema" path="/admin/config" />
+          <AdminCard title="Resultado" description="Resultado do evento" path="/result" />
         </div>
       </div>
     </div>

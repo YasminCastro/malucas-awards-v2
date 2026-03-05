@@ -88,7 +88,7 @@ export function ResultThirdSlide({ categoryName, results, isActive = false }: IP
             return;
         }
 
-        const tween = gsap.delayedCall(2, () => {
+        const tween = gsap.delayedCall(1, () => {
             const slideRect = slide.getBoundingClientRect();
             const cardsRect = cards.getBoundingClientRect();
             const maxW = slideRect.width - CORNER_PADDING * 2;
@@ -139,14 +139,14 @@ export function ResultThirdSlide({ categoryName, results, isActive = false }: IP
                                 onComplete: () => {
                                     setCornerCardHidden(true);
                                     // 1 segundo depois: exibe o card grande no centro
-                                    gsap.delayedCall(1, () => {
+                                    gsap.delayedCall(0.5, () => {
                                         if (stillActiveRef.current) setShowCenterCard(true);
                                     });
                                 },
                             });
                         } else {
                             setCornerCardHidden(true);
-                            gsap.delayedCall(1, () => {
+                            gsap.delayedCall(0.5, () => {
                                 if (stillActiveRef.current) setShowCenterCard(true);
                             });
                         }
@@ -154,7 +154,7 @@ export function ResultThirdSlide({ categoryName, results, isActive = false }: IP
                 });
             } else {
                 setCornerCardHidden(true);
-                gsap.delayedCall(1, () => {
+                gsap.delayedCall(0.5, () => {
                     if (stillActiveRef.current) setShowCenterCard(true);
                 });
             }
@@ -188,14 +188,14 @@ export function ResultThirdSlide({ categoryName, results, isActive = false }: IP
                 ease: "power2.inOut",
                 onComplete: () => {
                     setCornerSecondHidden(true);
-                    gsap.delayedCall(1, () => {
+                    gsap.delayedCall(0.5, () => {
                         if (stillActiveRef.current) setShowSecondInCenter(true);
                     });
                 },
             });
         } else {
             setCornerSecondHidden(true);
-            gsap.delayedCall(1, () => {
+            gsap.delayedCall(0.5, () => {
                 if (stillActiveRef.current) setShowSecondInCenter(true);
             });
         }
@@ -224,14 +224,14 @@ export function ResultThirdSlide({ categoryName, results, isActive = false }: IP
                 ease: "power2.inOut",
                 onComplete: () => {
                     setCornerFirstHidden(true);
-                    gsap.delayedCall(1, () => {
+                    gsap.delayedCall(0.5, () => {
                         if (stillActiveRef.current) setShowFirstInCenter(true);
                     });
                 },
             });
         } else {
             setCornerFirstHidden(true);
-            gsap.delayedCall(1, () => {
+            gsap.delayedCall(0.5, () => {
                 if (stillActiveRef.current) setShowFirstInCenter(true);
             });
         }
@@ -259,9 +259,13 @@ export function ResultThirdSlide({ categoryName, results, isActive = false }: IP
                     <div className="flex flex-wrap items-center justify-center gap-6">
                         <div
                             ref={centerCardRef}
-                            className="w-full max-w-40 border-2 border-black rounded-lg p-3 bg-white/95 shadow-xl"
+                            className="w-full max-w-40 border-2 border-black rounded-lg p-3 bg-white/95 shadow-xl relative"
+                            style={{ boxShadow: "0 0 0 1px black, 0 0 30px 8px rgba(249, 115, 22, 0.6), 0 0 50px 15px rgba(249, 115, 22, 0.3)" }}
                         >
-                            <div className="relative w-full aspect-square mb-2 rounded-md overflow-hidden border-2 border-black">
+                            <div className="absolute -top-2 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full bg-orange-300 border-2 border-orange-500 text-black font-bold text-xs whitespace-nowrap shadow">
+                                🥉 3º
+                            </div>
+                            <div className="relative w-full aspect-square mb-2 rounded-md overflow-hidden border-2 border-black mt-1">
                                 <ParticipantImage
                                     src={getUserImage(thirdVotesResult.participantInstagram)}
                                     alt={thirdVotesResult.participantInstagram}
@@ -278,9 +282,13 @@ export function ResultThirdSlide({ categoryName, results, isActive = false }: IP
                         {showFirstInCenter && firstVotesResult && (
                             <div
                                 ref={centerFirstCardRef}
-                                className="w-full max-w-72 border-2 border-black rounded-lg p-4 bg-white/95 shadow-xl"
+                                className="w-full max-w-72 border-2 border-black rounded-lg p-4 bg-white/95 shadow-xl relative"
+                                style={{ boxShadow: "0 0 0 1px black, 0 0 35px 10px rgba(234, 179, 8, 0.6), 0 0 60px 20px rgba(234, 179, 8, 0.35)" }}
                             >
-                                <div className="relative w-full aspect-square mb-3 rounded-md overflow-hidden border-2 border-black">
+                                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-yellow-400 border-2 border-yellow-600 text-black font-bold text-sm whitespace-nowrap shadow">
+                                    🥇 1º
+                                </div>
+                                <div className="relative w-full aspect-square mb-3 rounded-md overflow-hidden border-2 border-black mt-2">
                                     <ParticipantImage
                                         src={getUserImage(firstVotesResult.participantInstagram)}
                                         alt={firstVotesResult.participantInstagram}
@@ -298,9 +306,13 @@ export function ResultThirdSlide({ categoryName, results, isActive = false }: IP
                         {showSecondInCenter && secondVotesResult && (
                             <div
                                 ref={centerSecondCardRef}
-                                className="w-full max-w-56 border-2 border-black rounded-lg p-3.5 bg-white/95 shadow-xl"
+                                className="w-full max-w-56 border-2 border-black rounded-lg p-3.5 bg-white/95 shadow-xl relative"
+                                style={{ boxShadow: "0 0 0 1px black, 0 0 30px 8px rgba(156, 163, 175, 0.6), 0 0 50px 15px rgba(156, 163, 175, 0.3)" }}
                             >
-                                <div className="relative w-full aspect-square mb-2.5 rounded-md overflow-hidden border-2 border-black">
+                                <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full bg-gray-300 border-2 border-gray-500 text-black font-bold text-xs whitespace-nowrap shadow">
+                                    🥈 2º
+                                </div>
+                                <div className="relative w-full aspect-square mb-2.5 rounded-md overflow-hidden border-2 border-black mt-1.5">
                                     <ParticipantImage
                                         src={getUserImage(secondVotesResult.participantInstagram)}
                                         alt={secondVotesResult.participantInstagram}
@@ -337,10 +349,10 @@ export function ResultThirdSlide({ categoryName, results, isActive = false }: IP
                                     result.participantInstagram === thirdVotesResult?.participantInstagram
                                         ? cornerCardRef
                                         : result.participantInstagram === secondVotesResult?.participantInstagram
-                                          ? cornerSecondRef
-                                          : result.participantInstagram === firstVotesResult?.participantInstagram
-                                            ? cornerFirstRef
-                                            : undefined
+                                            ? cornerSecondRef
+                                            : result.participantInstagram === firstVotesResult?.participantInstagram
+                                                ? cornerFirstRef
+                                                : undefined
                                 }
                                 className="border-2 border-black rounded-lg p-3 bg-white/90"
                                 key={result.participantInstagram}

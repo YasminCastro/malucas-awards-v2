@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ParticipantImage } from "./participant-image";
 import type { CategoryResult } from "@/types/categories";
+import BlurText from "./BlurText";
+import CountUp from "./CountUp";
 
 interface IProps {
     categoryName: string
@@ -43,6 +45,8 @@ export function ResultThirdSlide({ categoryName, results, isActive = false }: IP
     const [cornerCardHidden, setCornerCardHidden] = useState(false);
     const [cornerSecondHidden, setCornerSecondHidden] = useState(false);
     const [cornerFirstHidden, setCornerFirstHidden] = useState(false);
+    const [top3TextStartExit, setTop3TextStartExit] = useState(false);
+    const [cardsReadyForCount, setCardsReadyForCount] = useState(false);
     const prevActive = useRef(false);
     const slideRef = useRef<HTMLDivElement>(null);
     const cardsRef = useRef<HTMLDivElement>(null);
@@ -71,9 +75,18 @@ export function ResultThirdSlide({ categoryName, results, isActive = false }: IP
             setCornerCardHidden(false);
             setCornerSecondHidden(false);
             setCornerFirstHidden(false);
+            setTop3TextStartExit(false);
+            setCardsReadyForCount(false);
             secondSequenceStartedRef.current = false;
             firstSequenceStartedRef.current = false;
         }
+    }, [isActive]);
+
+    // "Top 3" fica visível 5 segundos, depois começa a sumir
+    useEffect(() => {
+        if (!isActive) return;
+        const t = setTimeout(() => setTop3TextStartExit(true), 5000);
+        return () => clearTimeout(t);
     }, [isActive]);
 
     useEffect(() => {
@@ -244,13 +257,39 @@ export function ResultThirdSlide({ categoryName, results, isActive = false }: IP
         gsap.fromTo(
             el,
             { scale: 0.3, opacity: 0 },
-            { scale: 1, opacity: 1, duration: 0.5, ease: "back.out(1.2)" }
+            {
+                scale: 1,
+                opacity: 1,
+                duration: 0.5,
+                ease: "back.out(1.2)",
+                onComplete: () => {
+                    if (stillActiveRef.current) setCardsReadyForCount(true);
+                },
+            }
         );
     }, [showFirstInCenter, firstVotesResult]);
 
     return (
         <div ref={slideRef} className="w-full h-full min-h-0 shrink-0 relative flex flex-col items-center justify-start pt-6 px-6 pb-6 md:pt-10 md:px-10 md:pb-10 overflow-hidden">
             <h2 className="text-5xl mb-4 uppercase font-bold text-center">{categoryName}</h2>
+            {!top3TextStartExit ? (
+                <p className="mb-8 text-center text-lg">Top 3</p>
+            ) : (
+                <BlurText
+                    key={`${blurKey}-top3-exit`}
+                    text="Top 3"
+                    delay={200}
+                    animateBy="words"
+                    direction="top"
+                    animationFrom={{ filter: "blur(0px)", opacity: 1, y: 0 }}
+                    animationTo={[
+                        { filter: "blur(5px)", opacity: 0.5, y: 5 },
+                        { filter: "blur(10px)", opacity: 0, y: 50 },
+                    ]}
+                    onAnimationComplete={undefined}
+                    className="mb-8 text-center"
+                />
+            )}
             {showCenterCard && thirdVotesResult && (
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none pt-6 px-6 pb-6 md:pt-10 md:px-10 md:pb-10">
                     <div className="flex flex-wrap items-center justify-center gap-6">
@@ -273,7 +312,20 @@ export function ResultThirdSlide({ categoryName, results, isActive = false }: IP
                                 {thirdVotesResult.participantName || thirdVotesResult.participantInstagram}
                             </p>
                             <p className="text-xs text-center text-black/70 mt-0.5">
-                                {thirdVotesResult.votes ?? 0} voto{(thirdVotesResult.votes ?? 0) !== 1 ? "s" : ""}
+                                {cardsReadyForCount && <> <CountUp
+                                    from={0}
+                                    to={thirdVotesResult.votes ?? 0}
+                                    separator=","
+                                    direction="up"
+                                    duration={0.5}
+                                    className="count-up-text"
+                                    startWhen={cardsReadyForCount}
+                                    onStart={() => { }}
+                                    onEnd={() => { }}
+                                />
+
+                                    {" "}voto{(thirdVotesResult.votes ?? 0) !== 1 ? "s" : ""}</>}
+
                             </p>
                         </div>
                         {showFirstInCenter && firstVotesResult && (
@@ -296,7 +348,20 @@ export function ResultThirdSlide({ categoryName, results, isActive = false }: IP
                                     {firstVotesResult.participantName || firstVotesResult.participantInstagram}
                                 </p>
                                 <p className="text-sm text-center text-black/70 mt-1">
-                                    {firstVotesResult.votes ?? 0} voto{(firstVotesResult.votes ?? 0) !== 1 ? "s" : ""}
+                                    {cardsReadyForCount && <> <CountUp
+                                        from={0}
+                                        to={firstVotesResult.votes ?? 0}
+                                        separator=","
+                                        direction="up"
+                                        duration={1.5}
+                                        className="count-up-text"
+                                        startWhen={cardsReadyForCount}
+                                        onStart={() => { }}
+                                        onEnd={() => { }}
+                                    />
+
+                                        {" "}voto{(firstVotesResult.votes ?? 0) !== 1 ? "s" : ""}</>}
+
                                 </p>
                             </div>
                         )}
@@ -320,8 +385,24 @@ export function ResultThirdSlide({ categoryName, results, isActive = false }: IP
                                     {secondVotesResult.participantName || secondVotesResult.participantInstagram}
                                 </p>
                                 <p className="text-xs text-center text-black/70 mt-0.5">
-                                    {secondVotesResult.votes ?? 0} voto{(secondVotesResult.votes ?? 0) !== 1 ? "s" : ""}
+                                    {cardsReadyForCount && <> <CountUp
+                                        from={0}
+                                        to={secondVotesResult.votes ?? 0}
+                                        separator=","
+                                        direction="up"
+                                        duration={1}
+                                        className="count-up-text"
+                                        startWhen={cardsReadyForCount}
+                                        onStart={() => { }}
+                                        onEnd={() => { }}
+                                    />
+
+                                        {" "}voto{(secondVotesResult.votes ?? 0) !== 1 ? "s" : ""}</>}
+
+
                                 </p>
+
+
                             </div>
                         )}
                     </div>

@@ -18,12 +18,13 @@ function getUserImage(instagram: string) {
 }
 
 const ENTRANCE_DURATION = 1;
-const PAUSE_AFTER_ENTRANCE = 2; // segundos de pausa após o último card entrar
-const SHRINK_DURATION_S = 0.6;
+const PAUSE_AFTER_ENTRANCE = 0.8; // segundos de pausa após o último card entrar
+const SHRINK_DURATION_S = 0.35;
 
 export function ResultSecondSlide({ categoryName, participants, isActive = false }: IProps) {
     const [blurKey, setBlurKey] = useState(0);
     const [phase, setPhase] = useState<"all" | "top3">("all");
+    const [showTop3Subtitle, setShowTop3Subtitle] = useState(false);
     const [collapseHidden, setCollapseHidden] = useState(false); // após sumir, tira do layout para os 3 ficarem juntos
     const prevActive = useRef(false);
 
@@ -54,6 +55,7 @@ export function ResultSecondSlide({ categoryName, participants, isActive = false
     useEffect(() => {
         if (!isActive) {
             setPhase("all");
+            setShowTop3Subtitle(false);
             setCollapseHidden(false);
             return;
         }
@@ -80,20 +82,47 @@ export function ResultSecondSlide({ categoryName, participants, isActive = false
         <div className="w-full h-full shrink-0 flex flex-col items-center justify-start pt-6 px-6 pb-6 md:pt-10 md:px-10 md:pb-10 overflow-auto">
             <h2 className="text-5xl mb-4 uppercase font-bold text-center">{categoryName}</h2>
 
-            <BlurText
-                key={`${blurKey}-concorrentes`}
-                text="Concorrentes que receberam votos"
-                delay={200}
-                animateBy="words"
-                direction="top"
-                className="mb-8 text-center"
-                animationFrom={{ filter: "blur(0px)", opacity: 1, y: 0 }}
-                animationTo={[
-                    { filter: "blur(5px)", opacity: 0.5, y: 5 },
-                    { filter: "blur(10px)", opacity: 0, y: 50 },
-                ]}
-                onAnimationComplete={undefined}
-            />
+            <div className="mb-8 min-h-12 flex items-center justify-center text-center">
+                {phase === "all" && (
+                    <p className="text-lg">
+                        Concorrentes que receberam votos
+                    </p>
+                )}
+                {phase === "top3" && !showTop3Subtitle && (
+                    <BlurText
+                        key={`${blurKey}-concorrentes-erase`}
+                        text="Concorrentes que receberam votos"
+                        delay={80}
+                        animateBy="words"
+                        direction="top"
+                        className=""
+                        animationFrom={{ filter: "blur(0px)", opacity: 1, y: 0 }}
+                        animationTo={[
+                            { filter: "blur(5px)", opacity: 0.5, y: 5 },
+                            { filter: "blur(10px)", opacity: 0, y: 50 },
+                        ]}
+                        onAnimationComplete={() => setShowTop3Subtitle(true)}
+                        stepDuration={0.25}
+                    />
+                )}
+                {showTop3Subtitle && (
+                    <BlurText
+                        key={`${blurKey}-top3`}
+                        text="Top 3"
+                        delay={150}
+                        animateBy="words"
+                        direction="top"
+                        className=""
+                        animationFrom={{ filter: "blur(10px)", opacity: 0, y: 50 }}
+                        animationTo={[
+                            { filter: "blur(5px)", opacity: 0.5, y: 5 },
+                            { filter: "blur(0px)", opacity: 1, y: 0 },
+                        ]}
+                        onAnimationComplete={undefined}
+                        stepDuration={0.3}
+                    />
+                )}
+            </div>
 
             <div
                 className={`w-full max-w-4xl grid gap-4 ${collapseHidden ? "grid-cols-3" : "grid-cols-2 sm:grid-cols-3 md:grid-cols-4"
